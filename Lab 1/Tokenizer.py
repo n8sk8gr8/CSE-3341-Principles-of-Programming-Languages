@@ -1,6 +1,66 @@
 import re
-#import sys
+import sys
 
+class Tokenizer:
+        'Tokenizer that generates tokens from a list of strings'
+        def __init__(self):
+                current_token = None
+        
+        # Generates a list of tokens from a list of strings
+        def generate_tokens(self, tokens):
+                lower = lowercase.match(tokens)
+                ID = identifier.match(tokens)
+                number = integers.match(tokens)
+                equals = equal.match(tokens) 
+                semicolon = semi.match(tokens)
+                cond_or = cond.match(tokens)
+                
+                if lower:
+                        check_legal_token(tokens, lower)
+                        #print lower.group()
+                        decode_token(lower.group())
+                        all_tokens.append(lower.group())
+                        check_multi_token(tokens, lower)
+                        
+                elif equals:
+                        check_legal_token(tokens, equals)
+                        #print equals.group()
+                        decode_token(equals.group())
+                        all_tokens.append(equals.group())                
+                        check_multi_token(tokens, equals)
+                        
+                elif ID :
+                        check_legal_token(tokens, ID)
+                        #print ID.group()
+                        decode_token(ID.group())
+                        all_tokens.append(ID.group())                
+                        check_multi_token(tokens, ID)          
+                    
+                elif number :
+                        check_legal_token(tokens, number)
+                        #print number.group()
+                        decode_token(number.group())
+                        all_tokens.append(number.group())                
+                        check_multi_token(tokens, number)
+                   
+                elif semicolon:
+                        check_legal_token(tokens, semicolon)
+                        #print semicolon.group()
+                        decode_token(semicolon.group())
+                        all_tokens.append(semicolon.group())
+                        check_multi_token(tokens, semicolon)
+                
+                elif cond_or:
+                        check_legal_token(tokens, cond_or)
+                        #print cond_or.group()
+                        decode_token(cond_or.group())
+                        all_tokens.append(cond_or.group())                
+                        #print str(cond_or.group()) == '||'
+                        check_multi_token(tokens, cond_or)
+               
+                else:
+                        quit("Error with token " + str(tokens))        
+                
 # Prints a list, each item in the list on a seperate line 
 def print_tokens(tokens):
         for token in tokens:
@@ -47,7 +107,7 @@ def decode_token(token):
         cond_or = cond.match(token)
         
         if lower:
-                decoded_tokens.append(1)
+                print 1
                 
         elif equals:
                 if equals.group() == '=':
@@ -73,7 +133,7 @@ def check_multi_token(token, list):
         
         if len(token[len(list.group()) :]) != 0 and len(list.group()) !=0:      
                 t = token[len(list.group()):]
-                generate_tokens(t)        
+                tokenizer.generate_tokens(t)        
 
 # Checks if the current token is valid
 def check_legal_token(token, list):
@@ -88,64 +148,21 @@ def check_legal_token(token, list):
                         print "Error with token " + str(token)
                         quit("Error with token " + str(token))        
 
-
-# Generates a list of tokens from a list of strings
-def generate_tokens(tokens):
-        lower = lowercase.match(tokens)
-        ID = identifier.match(tokens)
-        number = integers.match(tokens)
-        equals = equal.match(tokens) 
-        semicolon = semi.match(tokens)
-        cond_or = cond.match(tokens)
-        
-        if lower:
-                check_legal_token(tokens, lower)
-                print lower.group()
-                decode_token(lower.group())
-                all_tokens.append(lower.group())
-                check_multi_token(tokens, lower)
-                
-        elif equals:
-                check_legal_token(tokens, equals)
-                print equals.group()
-                decode_token(equals.group())
-                all_tokens.append(equals.group())                
-                check_multi_token(tokens, equals)
-                
-        elif ID :
-                check_legal_token(tokens, ID)
-                print ID.group()
-                decode_token(ID.group())
-                all_tokens.append(ID.group())                
-                check_multi_token(tokens, ID)          
-            
-        elif number :
-                check_legal_token(tokens, number)
-                print number.group()
-                decode_token(number.group())
-                all_tokens.append(number.group())                
-                check_multi_token(tokens, number)
-           
-        elif semicolon:
-                check_legal_token(tokens, semicolon)
-                print semicolon.group()
-                decode_token(semicolon.group())
-                all_tokens.append(semicolon.group())
-                check_multi_token(tokens, semicolon)
-        
-        elif cond_or:
-                check_legal_token(token, cond_or.group())
-                print cond_or.group()
-                decode_token(cond_or.group())
-                all_tokens.append(cond_or.group())                
-                #print str(cond_or.group()) == '||'
-                check_multi_token(tokens, cond_or)
-       
-        else:
-                quit("Error with token " + str(tokens))
+# Read data from file into a string
+def read_file(filename):
+        f = open(filename)
+        filedata = f.read()
+        return filedata
 
 remove_spaces = re.compile('\S+')
-tokens = remove_spaces.findall(";%this")#";|this remainder doesn't matter")#";xyXY")#";;XYxy this remainder doesn't matter")#"||xy74 this remainder doesn't matter")#"===XY74Z this remainder doesn't matter")#"program int X; begin X===328XY74||")
+
+if len(sys.argv) != 2:
+        quit("Usage progam_name data_file ")
+
+fname = sys.argv[1]
+             
+data = read_file(fname)
+tokens = remove_spaces.findall(data)
 
 # Regex's
 lowercase = re.compile('[a-z]+')
@@ -160,9 +177,11 @@ decoded_tokens = []
 
 print tokens
 
+tokenizer = Tokenizer()
+
 for token in range(len(tokens)):
-        generate_tokens(tokens[token])
+        tokenizer.generate_tokens(tokens[token])
         
 print all_tokens
-decode_tokens()
-print_tokens(decoded_tokens)
+#decode_tokens()
+#print_tokens(decoded_tokens)
