@@ -310,11 +310,12 @@ def check_multi_token(token, list):
 
 # Checks if the current token is valid
 def check_legal_token(token, list):
-        special_char = re.compile(';|=|\||,|!|\[|\]|&|\(|\)|\+|-|\*|!=|<|>|') 
+        special_char = re.compile(';|=|\||,|!|\[|\]|&|\(|\)|\+|-|\*|!=|<|>')
+        
         if len(token[len(list.group()) :]) != 0 and len(list.group()) !=0:
                 special_token = special_char.match(token[len(list.group())])
                 special_list = special_char.match(list.group())
-
+                
                 if not (special_token or special_list):
                         quit("Error with token " + str(token))        
 
@@ -334,8 +335,8 @@ if __name__ == "__main__":
                 quit("Usage progam_name data_file ")
         
         fname = sys.argv[1]
-                     
         data = read_file(fname)
+        
         tokens = remove_spaces.findall(data)
         
         # Regex's
