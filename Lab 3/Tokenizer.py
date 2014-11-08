@@ -23,15 +23,33 @@ class Program:
 class ID:
         'Identifier class'
         
+        id_array = []
+        id_count = 0    
+        
         def __init__(self, name):
                 self.__name = name
                 self.value = None
                 self.initalized = False
-                self.id_array = []
-                self.id_count = 0
-        
+                
         def get_name(self):
                 return self.__name
+        
+        def __eq__(self, other):
+                return self.__name == other.__name
+        
+        def parse_id():
+                t = Tokenizer()
+                if t.get in ID.id_array:  #THIS MIGHT BE WRONG!!
+                        print "ID in id_array"
+                        return ID.id_array[ID.id_array.index(self.__name)]
+                else:
+                        new_id = ID(self.__name)
+                        ID.id_array.extend([new_id])
+                        ID.id_count += 1
+                        print "ID not in id_array"
+                        return new_id
+                
+        
 
 
 class Tokenizer:
@@ -249,47 +267,47 @@ def decode_token(token):
         if lower:
                 if lower.group() == 'program':
                         print PROGRAM
-                        tokenizer.all_tokens.extend([PROGRAM])
+                        tokenizer.all_tokens.extend([lower.group()])
                 
                 elif lower.group() == 'begin':
                         print BEGIN
-                        tokenizer.all_tokens.extend([BEGIN])
+                        tokenizer.all_tokens.extend([lower.group()])
                 
                 elif lower.group() == 'end':
                         print END
-                        tokenizer.all_tokens.extend([END])
+                        tokenizer.all_tokens.extend([lower.group()])
                 
                 elif lower.group() == 'int':
                         print INT
-                        tokenizer.all_tokens.extend([INT])
+                        tokenizer.all_tokens.extend([lower.group()])
                 
                 elif lower.group() == 'if':
                         print IF
-                        tokenizer.all_tokens.extend([IF])
+                        tokenizer.all_tokens.extend([lower.group()])
                 
                 elif lower.group() == 'then':
                         print THEN
-                        tokenizer.all_tokens.extend([THEN])
+                        tokenizer.all_tokens.extend([lower.group()])
                 
                 elif lower.group() == 'else':
                         print ELSE
-                        tokenizer.all_tokens.extend([ELSE])
+                        tokenizer.all_tokens.extend([lower.group()])
                 
                 elif lower.group() == 'while':
                         print WHILE
-                        tokenizer.all_tokens.extend([WHILE])
+                        tokenizer.all_tokens.extend([lower.group()])
                 
                 elif lower.group() == 'loop':
                         print LOOP
-                        tokenizer.all_tokens.extend([LOOP])
+                        tokenizer.all_tokens.extend([lower.group()])
                 
                 elif lower.group() == 'read':
                         print READ
-                        tokenizer.all_tokens.extend([READ])
+                        tokenizer.all_tokens.extend([lower.group()])
                 
                 elif lower.group() == 'write':
                         print WRITE
-                        tokenizer.all_tokens.extend([WRITE])
+                        tokenizer.all_tokens.extend([lower.group()])
                 
                 else:
                         quit("Error with token " + str(token)) 
@@ -297,86 +315,86 @@ def decode_token(token):
         elif equals:
                 if equals.group() == '=':
                         print EQUALS 
-                        tokenizer.all_tokens.extend([EQUALS])
+                        tokenizer.all_tokens.extend([equals.group()])
                 else:
                         print DOUBLE_EQUALS
-                        tokenizer.all_tokens.extend([DOUBLE_EQUALS])
+                        tokenizer.all_tokens.extend([equals.group()])
                                  
         elif ID :
                 print IDENTIFIER
-                tokenizer.all_tokens.extend([IDENTIFIER])
+                tokenizer.all_tokens.extend([ID.group()])
             
         elif number :
                 print NUMBER
-                tokenizer.all_tokens.extend([NUMBER])
+                tokenizer.all_tokens.extend([number.group()])
            
         elif semicolon:
                 print SEMICOLON
-                tokenizer.all_tokens.extend([SEMICOLON])
+                tokenizer.all_tokens.extend([semicolon.group()])
                 
         elif cond_or:
                 print OR
-                tokenizer.all_tokens.extend([OR])
+                tokenizer.all_tokens.extend([cond_or.group()])
         
         elif comma:
                 print COMMA
-                tokenizer.all_tokens.extend([COMMA])
+                tokenizer.all_tokens.extend([comma.group()])
                 
         elif not_equal:
                 print NOT_EQUAL
-                tokenizer.all_tokens.extend([NOT_EQUAL])
+                tokenizer.all_tokens.extend([not_equal.group()])
         
         elif explanation_mark:
                 print EXPLANATION_MARK
-                tokenizer.all_tokens.extend([EXPLANATION_MARK])
+                tokenizer.all_tokens.extend([explanation_mark.group()])
 
         elif left_bracket:
                 print LEFT_BRACKET
-                tokenizer.all_tokens.extend([LEFT_BRACKET])
+                tokenizer.all_tokens.extend([left_bracket.group()])
                 
         elif right_bracket:
                 print RIGHT_BRACKET
-                tokenizer.all_tokens.extend([RIGHT_BRACKET])
+                tokenizer.all_tokens.extend([right_bracket.group()])
                 
         elif and_percent:
                 print AND_PERCENT
-                tokenizer.all_tokens.extend([AND_PERCENT])
+                tokenizer.all_tokens.extend([and_percent.group()])
         
         elif left_paren:
                 print LEFT_PAREN
-                tokenizer.all_tokens.extend([LEFT_PAREN])
+                tokenizer.all_tokens.extend([left_paren.group()])
                 
         elif right_paren:
                 print RIGHT_PAREN
-                tokenizer.all_tokens.extend([RIGHT_PAREN])
+                tokenizer.all_tokens.extend([right_paren.group()])
         
         elif plus:
                 print PLUS
-                tokenizer.all_tokens.extend([PLUS])
+                tokenizer.all_tokens.extend([plus.group()])
                 
         elif minus:
                 print MINUS
-                tokenizer.all_tokens.extend([MINUS])
+                tokenizer.all_tokens.extend([minus.group()])
         
         elif times:
                 print TIMES
-                tokenizer.all_tokens.extend([TIMES])
+                tokenizer.all_tokens.extend([times.group()])
                 
         elif less_than:
                 print LESS_THAN
-                tokenizer.all_tokens.extend([LESS_THAN])
+                tokenizer.all_tokens.extend([less_than.group()])
                 
         elif greater_than:
                 print GREATER_THAN
-                tokenizer.all_tokens.extend([GREATER_THAN])
+                tokenizer.all_tokens.extend([greater_than.group()])
         
         elif less_than_equal:
                 print LESS_THAN_EQUAL
-                tokenizer.all_tokens.extend([LESS_THAN_EQUAL])
+                tokenizer.all_tokens.extend([less_than_equal.group()])
                 
         elif greater_than_equal:
                 print GREATER_THAN_EQUAL
-                tokenizer.all_tokens.extend([GREATER_THAN_EQUAL])
+                tokenizer.all_tokens.extend([greater_than_equal.group()])
 
 # Separates tokens that are concatonated together                       
 def check_multi_token(token, list):
@@ -457,13 +475,12 @@ if __name__ == "__main__":
         Id = ID("HELLO")
         print Id.get_name()
         
-        tok = Singleton()
-        tok.Instance()
-        tok.Instance()
-        tok.Instance()
-        tok.Instance()
-        tok2 = Singleton()
-        tok2.Instance()
+        Id2 = ID("WORLD")
+        Id3 = ID("HELLO")
+        
+        #Id.parse_id()
+        #Id.parse_id()
+        #Id.parse_id()
         
 
         
