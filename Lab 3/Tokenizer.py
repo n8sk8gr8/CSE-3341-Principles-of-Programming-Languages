@@ -31,27 +31,39 @@ class ID:
                 self.value = None
                 self.initalized = False
                 
-        def get_name(self):
+        def get_Id_name(self):
                 return self.__name
+       
+        '''
+        Function overloads == operator to be able to compare tokens and ID's 
+        based on name. self is the id objects and other is the token
         
+        '''
         def __eq__(self, other):
-                return self.__name == other.__name
+                return self.__name == other
         
+        @staticmethod
         def parse_id():
-                t = Tokenizer()
-                if t.get in ID.id_array:  #THIS MIGHT BE WRONG!!
+                t = Singleton().Instance()
+                print t.get_token()
+                if t.get_token() in ID.id_array:
                         print "ID in id_array"
-                        return ID.id_array[ID.id_array.index(self.__name)]
+                        return ID.id_array[ID.id_array.index(t.get_token())]
                 else:
-                        new_id = ID(self.__name)
+                        new_id = ID(t.get_token())
                         ID.id_array.extend([new_id])
                         ID.id_count += 1
                         print "ID not in id_array"
                         return new_id
+        
+        def get_Id_value(self):
+                return self.value
+        
+        def set_Id_value(self, value):
+                self.value = value
+        
                 
         
-
-
 class Tokenizer:
         'Tokenizer that generates tokens from a list of strings'
         
@@ -64,6 +76,7 @@ class Tokenizer:
                 self.position += 1
                 
         def get_token(self):
+                print 
                 return self.all_tokens[self.position]       
                 
         
@@ -432,7 +445,7 @@ if __name__ == "__main__":
         
         #fname = sys.argv[1]
         #data = read_file(fname)
-        data = "ABCD1234;;; 12;"
+        data = "ABCD1234 ABC THE CAT ABC ABC 12;"
         tokens = remove_spaces.findall(data)
         
         # Regex's
@@ -460,27 +473,42 @@ if __name__ == "__main__":
         EOF = 33
         
         # Create tokenizer object        
-        tokenizer = Tokenizer()
+        #tokenizer = Tokenizer()
+        tokenizer = Singleton().Instance()
         
         for token in range(len(tokens)):
                 tokenizer.generate_tokens(tokens[token])
         
-        for t in range(len(tokenizer.all_tokens)):
-                print "TOKEN = " + str(tokenizer.get_token())
-                
-                tokenizer.skip_token()
+        # Testing get_token() and skip_token()        
+        #for t in range(len(tokenizer.all_tokens)):
+        #        print "TOKEN = " + str(tokenizer.get_token())
+        #        
+        #        tokenizer.skip_token()
         
         print EOF
         
         Id = ID("HELLO")
-        print Id.get_name()
+        print Id.get_Id_name()
         
         Id2 = ID("WORLD")
         Id3 = ID("HELLO")
         
-        #Id.parse_id()
-        #Id.parse_id()
-        #Id.parse_id()
+        t = Singleton().Instance()
+        ID.parse_id()
+        t.skip_token()
+        ID.parse_id()
+        t.skip_token()
+        ID.parse_id()
+        t.skip_token()    
+        ID.parse_id()
+        t.skip_token()   
+        ID.parse_id()
+        t.skip_token() 
+        ID.parse_id()
+        t.skip_token()        
+        #ID.parse_id()
+        #ID.parse_id()        
+
         
 
         
