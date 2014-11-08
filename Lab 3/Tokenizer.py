@@ -5,8 +5,16 @@ class Tokenizer:
         'Tokenizer that generates tokens from a list of strings'
         
         def __init__(self):
-                self.current_token = ""
-                self.next_token = ""
+                #self.current_token = ""
+                self.all_tokens = []
+                self.position = 0;
+        
+        def skip_token(self):
+                self.position += 1
+                
+        def get_token(self):
+                return self.all_tokens[self.position]       
+                
         
         # Generates a list of tokens from a string
         def generate_tokens(self, tokens):
@@ -208,108 +216,141 @@ def decode_token(token):
         if lower:
                 if lower.group() == 'program':
                         print PROGRAM
+                        tokenizer.all_tokens.extend([PROGRAM])
                 
                 elif lower.group() == 'begin':
                         print BEGIN
+                        tokenizer.all_tokens.extend([BEGIN])
                 
                 elif lower.group() == 'end':
                         print END
+                        tokenizer.all_tokens.extend([END])
                 
                 elif lower.group() == 'int':
                         print INT
+                        tokenizer.all_tokens.extend([INT])
                 
                 elif lower.group() == 'if':
                         print IF
+                        tokenizer.all_tokens.extend([IF])
                 
                 elif lower.group() == 'then':
                         print THEN
+                        tokenizer.all_tokens.extend([THEN])
                 
                 elif lower.group() == 'else':
                         print ELSE
+                        tokenizer.all_tokens.extend([ELSE])
                 
                 elif lower.group() == 'while':
                         print WHILE
+                        tokenizer.all_tokens.extend([WHILE])
                 
                 elif lower.group() == 'loop':
                         print LOOP
+                        tokenizer.all_tokens.extend([LOOP])
                 
                 elif lower.group() == 'read':
                         print READ
+                        tokenizer.all_tokens.extend([READ])
                 
                 elif lower.group() == 'write':
                         print WRITE
+                        tokenizer.all_tokens.extend([WRITE])
                 
                 else:
                         quit("Error with token " + str(token)) 
                 
         elif equals:
                 if equals.group() == '=':
-                        print EQUALS                
+                        print EQUALS 
+                        tokenizer.all_tokens.extend([EQUALS])
                 else:
                         print DOUBLE_EQUALS
+                        tokenizer.all_tokens.extend([DOUBLE_EQUALS])
                                  
         elif ID :
                 print IDENTIFIER
+                tokenizer.all_tokens.extend([IDENTIFIER])
             
         elif number :
-                print NUMBER              
+                print NUMBER
+                tokenizer.all_tokens.extend([NUMBER])
            
         elif semicolon:
                 print SEMICOLON
+                tokenizer.all_tokens.extend([SEMICOLON])
                 
         elif cond_or:
                 print OR
+                tokenizer.all_tokens.extend([OR])
         
         elif comma:
                 print COMMA
+                tokenizer.all_tokens.extend([COMMA])
                 
         elif not_equal:
                 print NOT_EQUAL
+                tokenizer.all_tokens.extend([NOT_EQUAL])
         
         elif explanation_mark:
                 print EXPLANATION_MARK
+                tokenizer.all_tokens.extend([EXPLANATION_MARK])
 
         elif left_bracket:
                 print LEFT_BRACKET
+                tokenizer.all_tokens.extend([LEFT_BRACKET])
                 
         elif right_bracket:
                 print RIGHT_BRACKET
+                tokenizer.all_tokens.extend([RIGHT_BRACKET])
                 
         elif and_percent:
                 print AND_PERCENT
+                tokenizer.all_tokens.extend([AND_PERCENT])
         
         elif left_paren:
                 print LEFT_PAREN
+                tokenizer.all_tokens.extend([LEFT_PAREN])
                 
         elif right_paren:
                 print RIGHT_PAREN
+                tokenizer.all_tokens.extend([RIGHT_PAREN])
         
         elif plus:
                 print PLUS
+                tokenizer.all_tokens.extend([PLUS])
                 
         elif minus:
                 print MINUS
+                tokenizer.all_tokens.extend([MINUS])
         
         elif times:
                 print TIMES
+                tokenizer.all_tokens.extend([TIMES])
                 
         elif less_than:
                 print LESS_THAN
+                tokenizer.all_tokens.extend([LESS_THAN])
                 
         elif greater_than:
                 print GREATER_THAN
+                tokenizer.all_tokens.extend([GREATER_THAN])
         
         elif less_than_equal:
                 print LESS_THAN_EQUAL
+                tokenizer.all_tokens.extend([LESS_THAN_EQUAL])
                 
         elif greater_than_equal:
                 print GREATER_THAN_EQUAL
+                tokenizer.all_tokens.extend([GREATER_THAN_EQUAL])
 
 # Separates tokens that are concatonated together                       
 def check_multi_token(token, list):
         
         if len(token[len(list.group()) :]) != 0 and len(list.group()) !=0:      
                 t = token[len(list.group()):]
+                tokenizer.current_token = list.group()
                 tokenizer.generate_tokens(t)        
 
 # Checks if the current token is valid
@@ -340,7 +381,7 @@ if __name__ == "__main__":
         
         #fname = sys.argv[1]
         #data = read_file(fname)
-        data = "ABCD1234 12;"
+        data = "ABCD1234;;; 12;"
         tokens = remove_spaces.findall(data)
         
         # Regex's
@@ -370,11 +411,13 @@ if __name__ == "__main__":
         # Create tokenizer object        
         tokenizer = Tokenizer()
         
-        test = "A"
-        #for token in range(len(tokens)):
-        for token in range(len(test)):
+        for token in range(len(tokens)):
                 tokenizer.generate_tokens(tokens[token])
         
+        for t in range(len(tokenizer.all_tokens)):
+                print "TOKEN = " + str(tokenizer.get_token())
+                
+                tokenizer.skip_token()
         
         print EOF
         
