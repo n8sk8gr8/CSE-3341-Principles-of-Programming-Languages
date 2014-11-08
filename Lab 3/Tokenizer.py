@@ -1,6 +1,39 @@
 import re
 import sys
 
+class Singleton:
+        'Singleton class to ensure only one tokenizer'
+        instance = None
+        num = 0        
+        
+        def Instance(self):
+                if (Singleton.instance == None):
+                        Singleton.instance = Tokenizer()
+                        Singleton.num += 1
+                        print Singleton.num
+                        return Singleton.instance
+                else:
+                        Singleton.num += 1
+                        print "NUM2 = " + str(Singleton.num)
+                        return Singleton.instance
+
+class Program:
+        'Program class that parses, prints and executes core programs'
+        
+class ID:
+        'Identifier class'
+        
+        def __init__(self, name):
+                self.__name = name
+                self.value = None
+                self.initalized = False
+                self.id_array = []
+                self.id_count = 0
+        
+        def get_name(self):
+                return self.__name
+
+
 class Tokenizer:
         'Tokenizer that generates tokens from a list of strings'
         
@@ -420,4 +453,18 @@ if __name__ == "__main__":
                 tokenizer.skip_token()
         
         print EOF
+        
+        Id = ID("HELLO")
+        print Id.get_name()
+        
+        tok = Singleton()
+        tok.Instance()
+        tok.Instance()
+        tok.Instance()
+        tok.Instance()
+        tok2 = Singleton()
+        tok2.Instance()
+        
+
+        
         
