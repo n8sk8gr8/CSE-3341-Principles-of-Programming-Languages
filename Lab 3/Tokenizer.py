@@ -36,12 +36,186 @@ class Program:
                 
                 if tokenizer.get_token() != "begin":
                         Error().error("Error in parse_program token after parse_ds called is not 'begin'")
+                
+                tokenizer.skip_token() # skip 'begin' token
                         
                 ss = SS()
                 ss.parse_ss()
                 
                 if tokenizer.get_token() != "end":
                         Error().error("Error in parse_program token after parse_ss called is not 'end'")
+                        
+
+class SS:
+        'Statement sequence class'
+        
+        def __init__(self):
+                stmt = None
+        
+        def parse_ss(self):
+                tokenizer = Singleton().Instance()
+                
+                stmt = Stmt()
+                stmt.parse_stmt()
+                
+                if tokenizer.get_token() != "end":
+                        ss = SS()
+                        ss.parse_ss()
+
+class Stmt:
+        'Statement class which contains a single statement'
+        
+        def __init__(self):
+                stmt_assign = None
+                stmt_if = None
+                stmt_loop = None
+                stmt_in = None
+                stmt_out = None
+        
+        def parse_stmt(self):
+                tokenizer = Singleton().Instance()
+                tok_num = decode_token(str(tokenizer.get_token()))
+                print "PARSE_stmt token = " + tokenizer.get_token()
+                print tok_num
+                
+                if tokenizer.get_token() == "if":
+                        stmt_if = IF()
+                        stmt_if.parse_if()
+                        
+                elif tokenizer.get_token() == "loop":
+                        stmt_loop = Loop()
+                        stmt_loop.parse_loop()
+                        
+                elif tokenizer.get_token() == "read":
+                        stmt_in = In()
+                        stmt_in.parse_in()
+                
+                elif tokenizer.get_token() == "write":
+                        stmt_out = Out()
+                        stmt_out.parse_out()
+                
+                else:
+                        print "TOKEN IN parse_stmt = " + str(tokenizer.get_token())
+                        stmt_assign = Assign()
+                        stmt_assign.parse_assign()
+                        
+
+class Assign:
+        'Assign class'
+        
+        def __init__(self):
+                exp = None
+                ident = None
+        
+        def parse_assign(self):
+                tokenizer = Singleton().Instance()
+                print "TOKEN IN parse assign " + str(tokenizer.get_token())
+                ident = ID(tokenizer.get_token())
+                ident.parse_id_SS()
+                
+                if tokenizer.get_token() != "=":
+                        Error().error("Error: missing '=' in assignment statement")
+                
+                tokenizer.skip_token() # skip '=' token
+                exp = Exp()
+                exp.parse_exp()
+                
+                print "TOKEN IN parse assign after parse_exp is called " + str(tokenizer.get_token())
+                if tokenizer.get_token() != ";":
+                                        Error().error("Error: missing ';' after expression")                
+                tokenizer.skip_token() # skip ';' token
+  
+class Exp:
+        'Expression class'
+        
+        def __init__(self):
+                term = None
+                exp = None
+        
+        def parse_exp(self):
+                
+                term = Term()
+                term.parse_term()
+                tokenizer = Singleton().Instance()
+                
+                if tokenizer.get_token() == "+" or tokenizer.get_token() == "-":
+                        tokenizer.skip_token() # skip '+' or skip '-' token
+                        exp = Exp()
+                        exp.parse_exp()
+        
+ 
+class Term:
+        'Term class'
+        
+        def __init(self):
+                op = None
+                term = None
+                
+        def parse_term(self):
+                op = OP()
+                op.parse_op()
+                
+                tokenizer = Singleton().Instance()
+                
+                if tokenizer.get_token() == "*":
+                        tokenizer.skip_token() # skip '*' token
+                        term = Term()
+                        term.parse_term()
+                        
+class OP:
+        'Operation class'
+        
+        def __init(self):
+                num = None
+                ident = None
+                exp = None
+        
+        def parse_op(self):
+                NUMBER = 31                
+                IDENTIFIER = 32
+                tokenizer = Singleton().Instance()
+                tok_num = decode_single_token(tokenizer.get_token())
+                
+                print "HELLO inside of parse_op()"
+                print tok_num
+                print "TOKEN in parse_op is a number kind of " + str(tokenizer.get_token())
+                if tokenizer.get_token() == "(":
+                        tokenizer.skip_token() # skip '(' token
+                        exp = Exp()
+                        exp.parse_exp()
+                        
+                        if tokenizer.get_token() != ")":
+                                Error.error("Error: missing ')'")
+                                
+                        tokenizer.skip_token # skip ')' token
+                        
+                if tok_num == IDENTIFIER:
+                        ident = ID(tokenizer.get_token)
+                        ident.parse_id_SS()
+                
+                if tok_num == NUMBER:
+                        print "TOKEN in parse_op is a number " + str(tokenizer.get_token())
+                        tokenizer.skip_token()
+                
+                        
+class Out:
+        'Output class'
+        
+        def __init__(self):
+                id_list = None
+                
+        def parse_out(self):
+                tokenizer = Singleton().Instance()
+                tokenizer.skip_token() # skip 'write' token
+                
+                id_list = Id_list()
+                id_list.parse_id_list_SS()
+                
+                if tokenizer.get_token() != ";":
+                        Error().error("Error: ';' needed at the end of a write statement")
+                tokenizer.skip_token() # skip ';' token
+                
+                        
         
 class DS:
         'Declaration sequence class'
@@ -73,7 +247,7 @@ class Dec:
                         Error().error("Error in parse_dec token is not 'int'")
                 
                 tokenizer.skip_token()  #skipping 'int' token
-                id_list.parse_id_list()
+                id_list.parse_id_list_DS()
                 
                 if tokenizer.get_token() != ";":
                         Error().error("Error in parse_dec token after parse_id_list called is not ';'")
@@ -83,12 +257,12 @@ class Dec:
 class Id_list:
         'Identifier list'
         
-        def parse_id_list(self):
+        def parse_id_list_DS(self):
                 tokenizer = Singleton().Instance()
                 print "TOKEN IN ID_LIST = " + str(tokenizer.get_token())
                 
                 ident = ID(tokenizer.get_token())
-                ident.parse_id_DS()
+                ident.parse_id()
                 
                 if tokenizer.get_token() == "," and tokenizer.get_token() != ";":
                         id_list = Id_list()
@@ -96,7 +270,21 @@ class Id_list:
                         tokenizer.skip_token() # skip ',' token
                         print "ID_LIST after skip_token = " + str(tokenizer.get_token())
                         id_list.parse_id_list()
-                
+        
+        
+        def parse_id_list_SS(self):
+                        tokenizer = Singleton().Instance()
+                        print "TOKEN IN ID_LIST = " + str(tokenizer.get_token())
+                        
+                        ident = ID(tokenizer.get_token())
+                        ident.parse_id()
+                        
+                        if tokenizer.get_token() == "," and tokenizer.get_token() != ";":
+                                id_list = Id_list()
+                                print "ID_LIST before skip_token = " + str(tokenizer.get_token())
+                                tokenizer.skip_token() # skip ',' token
+                                print "ID_LIST after skip_token = " + str(tokenizer.get_token())
+                                id_list.parse_id_list()        
 
 
 class ID:
@@ -126,17 +314,17 @@ class ID:
                 t = Singleton().Instance()
                 print t.get_token()
                 if t.get_token() in ID.id_array:
-                        print str(t.get_token())+ " in id_array"
+                        #print str(t.get_token())+ " in id_array"
+                        tok = t.get_token()
                         t.skip_token()
-                        return ID.id_array[ID.id_array.index(t.get_token())]
+                        return ID.id_array[ID.id_array.index(tok)]
                 else:
                         new_id = ID(t.get_token())
                         ID.id_array.extend([new_id])
                         ID.id_count += 1
-                        print str(t.get_token())+ " not in id_array"
+                        #print str(t.get_token())+ " not in id_array"
                         t.skip_token()
                         return new_id
-       
         @staticmethod       
         def parse_id_DS():
                 t = Singleton().Instance()
@@ -149,10 +337,21 @@ class ID:
                         new_id = ID(t.get_token())
                         ID.id_array.extend([new_id])
                         ID.id_count += 1
-                        print str(t.get_token())+ " not in id_array"
                         t.skip_token()
                         return new_id        
-        
+
+        @staticmethod
+        def parse_id_SS():
+                t = Singleton().Instance()
+                print "TOKEN in parse_id_SS = " + str(t.get_token())
+                if t.get_token() in ID.id_array:
+                        tok = t.get_token()
+                        t.skip_token()
+                        print "next TOKEN in parse_id_SS = " + str(t.get_token())
+                        return ID.id_array[ID.id_array.index(tok)]
+                else:
+                        Error().error("Error: " + str(t.get_token()) + " was not defined")
+
         def get_Id_value(self):
                 return self.value
         
@@ -509,6 +708,165 @@ def decode_token(token):
         elif greater_than_equal:
                 print GREATER_THAN_EQUAL
                 tokenizer.all_tokens.extend([greater_than_equal.group()])
+
+
+# Decode a single token and print the corresponding int value
+def decode_single_token(token):
+        
+        lower = lowercase.match(token)
+        ID = identifier.match(token)
+        number = integers.match(token)
+        equals = equal.match(token) 
+        semicolon = semi.match(token)
+        cond_or = cond.match(token)
+        comma = comm.match(token)
+        explanation_mark = expl.match(token)
+        left_bracket = left_brack.match(token)
+        right_bracket = right_brack.match(token)
+        and_percent = and_per.match(token)
+        left_paren = left_par.match(token)
+        right_paren = right_par.match(token)
+        plus = add.match(token)
+        minus = sub.match(token)
+        times = mult.match(token)
+        not_equal = not_eq.match(token)
+        less_than = less.match(token)
+        greater_than = greater.match(token)
+        less_than_equal = less_than_eq.match(token)
+        greater_than_equal = greater_than_eq.match(token)       
+        
+        PROGRAM = 1
+        BEGIN = 2
+        END = 3
+        INT = 4
+        IF = 5
+        THEN = 6
+        ELSE = 7
+        WHILE = 8
+        LOOP = 9
+        READ = 10
+        WRITE = 11
+        EQUALS = 14
+        DOUBLE_EQUALS = 26
+        IDENTIFIER = 32
+        NUMBER = 31
+        SEMICOLON = 12
+        OR = 19
+        COMMA = 13
+        EXPLANATION_MARK = 15
+        LEFT_BRACKET = 16
+        RIGHT_BRACKET = 17
+        AND_PERCENT = 18
+        LEFT_PAREN = 20
+        RIGHT_PAREN = 21
+        PLUS = 22
+        MINUS = 23
+        TIMES = 24
+        NOT_EQUAL = 25
+        LESS_THAN = 27
+        GREATER_THAN = 28
+        LESS_THAN_EQUAL = 29
+        GREATER_THAN_EQUAL = 30
+        
+        if lower:
+                if lower.group() == 'program':
+                        return PROGRAM
+
+                
+                elif lower.group() == 'begin':
+                        return BEGIN
+                
+                elif lower.group() == 'end':
+                        return END
+
+                elif lower.group() == 'int':
+                        return INT
+
+                elif lower.group() == 'if':
+                        return IF
+                
+                elif lower.group() == 'then':
+                        return THEN
+                
+                elif lower.group() == 'else':
+                        return ELSE
+                
+                elif lower.group() == 'while':
+                        return WHILE
+                
+                elif lower.group() == 'loop':
+                        return LOOP
+                
+                elif lower.group() == 'read':
+                        return READ
+                
+                elif lower.group() == 'write':
+                        return WRITE
+                
+                
+        elif equals:
+                if equals.group() == '=':
+                        return EQUALS 
+                else:
+                        return DOUBLE_EQUALS
+                                 
+        elif ID :
+                return IDENTIFIER
+            
+        elif number :
+                return NUMBER
+           
+        elif semicolon:
+                return SEMICOLON
+                
+        elif cond_or:
+                return OR
+        
+        elif comma:
+                return COMMA
+                
+        elif not_equal:
+                return NOT_EQUAL
+        
+        elif explanation_mark:
+                return EXPLANATION_MARK
+
+        elif left_bracket:
+                return LEFT_BRACKET
+                
+        elif right_bracket:
+                return RIGHT_BRACKET
+                
+        elif and_percent:
+                return AND_PERCENT
+        
+        elif left_paren:
+                return LEFT_PAREN
+                
+        elif right_paren:
+                return RIGHT_PAREN
+        
+        elif plus:
+                return PLUS
+                
+        elif minus:
+                return MINUS
+        
+        elif times:
+                return TIMES
+                
+        elif less_than:
+                return LESS_THAN
+                
+        elif greater_than:
+                return GREATER_THAN
+        
+        elif less_than_equal:
+                return LESS_THAN_EQUAL
+                
+        elif greater_than_equal:
+                return GREATER_THAN_EQUAL
+
 
 # Separates tokens that are concatonated together                       
 def check_multi_token(token, list):
