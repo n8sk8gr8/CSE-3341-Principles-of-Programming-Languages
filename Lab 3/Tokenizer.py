@@ -53,8 +53,10 @@ class DS:
                 tokenizer = Singleton().Instance()
                 
                 dec = Dec()
+                dec.parse_dec()
                 if tokenizer.get_token() != "begin":
-                        dec.parse_dec()
+                        ds = DS()
+                        ds.parse_ds()
 
 class Dec:
         'Declaration class will contain a single declaration'
@@ -83,14 +85,17 @@ class Id_list:
         
         def parse_id_list(self):
                 tokenizer = Singleton().Instance()
-                print tokenizer.get_token()
+                print "TOKEN IN ID_LIST = " + str(tokenizer.get_token())
                 
                 ident = ID(tokenizer.get_token())
-                ident.parse_id()
+                ident.parse_id_DS()
                 
-                if tokenizer.get_token() == ",":
+                if tokenizer.get_token() == "," and tokenizer.get_token() != ";":
+                        id_list = Id_list()
+                        print "ID_LIST before skip_token = " + str(tokenizer.get_token())
                         tokenizer.skip_token() # skip ',' token
-                        ident.parse_id()
+                        print "ID_LIST after skip_token = " + str(tokenizer.get_token())
+                        id_list.parse_id_list()
                 
 
 
@@ -121,16 +126,32 @@ class ID:
                 t = Singleton().Instance()
                 print t.get_token()
                 if t.get_token() in ID.id_array:
-                        print "ID in id_array"
+                        print str(t.get_token())+ " in id_array"
                         t.skip_token()
                         return ID.id_array[ID.id_array.index(t.get_token())]
                 else:
                         new_id = ID(t.get_token())
                         ID.id_array.extend([new_id])
                         ID.id_count += 1
-                        print "ID not in id_array"
+                        print str(t.get_token())+ " not in id_array"
                         t.skip_token()
                         return new_id
+       
+        @staticmethod       
+        def parse_id_DS():
+                t = Singleton().Instance()
+                print t.get_token()
+                
+                if t.get_token() in ID.id_array:
+                        Error().error("Error: " + str(t.get_token()) + " already defined")
+
+                else:
+                        new_id = ID(t.get_token())
+                        ID.id_array.extend([new_id])
+                        ID.id_count += 1
+                        print str(t.get_token())+ " not in id_array"
+                        t.skip_token()
+                        return new_id        
         
         def get_Id_value(self):
                 return self.value
@@ -527,7 +548,8 @@ if __name__ == "__main__":
         #data = read_file(fname)
         #data = "ABCD1234 ABC THE CAT ABC ABC ,,12;"
         #data = "program int X; begin X = 25; write X; end"
-        data = "program int X,Y; begin X = 25; write X; end"
+        #data = "program int X,Y,Z; begin X = 25; write X; end" # Tests parsing a id_list with more than one id
+        data = "program int X; int Y; int Z; int A; begin X = 25; write X; end" # Tests parsing a <dec seq> with more than one <dec>
         tokens = remove_spaces.findall(data)
         
         # Regex's
