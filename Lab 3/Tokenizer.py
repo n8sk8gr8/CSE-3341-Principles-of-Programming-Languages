@@ -89,6 +89,7 @@ class Id_list:
                 ident.parse_id()
                 
                 if tokenizer.get_token() == ",":
+                        tokenizer.skip_token() # skip ',' token
                         ident.parse_id()
                 
 
@@ -526,7 +527,7 @@ if __name__ == "__main__":
         #data = read_file(fname)
         #data = "ABCD1234 ABC THE CAT ABC ABC ,,12;"
         #data = "program int X; begin X = 25; write X; end"
-        data = "program int X; begin X = 25; write X; end"
+        data = "program int X,Y; begin X = 25; write X; end"
         tokens = remove_spaces.findall(data)
         
         # Regex's
