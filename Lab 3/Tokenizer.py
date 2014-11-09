@@ -20,6 +20,79 @@ class Singleton:
 class Program:
         'Program class that parses, prints and executes core programs'
         
+        def __init__(self):
+                ds = None # ds = declaration_sequence
+                ss = None # ss = statement_sequence
+        
+        def parse_program(self):
+                tokenizer = Singleton().Instance()
+                
+                if(tokenizer.get_token() != "program"):
+                        Error().error("Error in parse_program first token is not 'program'")
+                
+                tokenizer.skip_token()
+                ds = DS()
+                ds.parse_ds()
+                
+                if tokenizer.get_token() != "begin":
+                        Error().error("Error in parse_program token after parse_ds called is not 'begin'")
+                        
+                ss = SS()
+                ss.parse_ss()
+                
+                if tokenizer.get_token() != "end":
+                        Error().error("Error in parse_program token after parse_ss called is not 'end'")
+        
+class DS:
+        'Declaration sequence class'
+        
+        def __init__(self):
+                dec = None # Single declaration 
+                
+        def parse_ds(self):
+                tokenizer = Singleton().Instance()
+                
+                dec = Dec()
+                if tokenizer.get_token() != "begin":
+                        dec.parse_dec()
+
+class Dec:
+        'Declaration class will contain a single declaration'
+        
+        def __init__(self):
+                id_list = None
+        
+        def parse_dec(self):
+                id_list = Id_list()
+                
+                tokenizer = Singleton().Instance()
+                
+                if tokenizer.get_token() != "int":
+                        Error().error("Error in parse_dec token is not 'int'")
+                
+                tokenizer.skip_token()  #skipping 'int' token
+                id_list.parse_id_list()
+                
+                if tokenizer.get_token() != ";":
+                        Error().error("Error in parse_dec token after parse_id_list called is not ';'")
+                        
+                tokenizer.skip_token() # skipping ';' token
+                
+class Id_list:
+        'Identifier list'
+        
+        def parse_id_list(self):
+                tokenizer = Singleton().Instance()
+                print tokenizer.get_token()
+                
+                ident = ID(tokenizer.get_token())
+                ident.parse_id()
+                
+                if tokenizer.get_token() == ",":
+                        ident.parse_id()
+                
+
+
 class ID:
         'Identifier class'
         
@@ -48,12 +121,14 @@ class ID:
                 print t.get_token()
                 if t.get_token() in ID.id_array:
                         print "ID in id_array"
+                        t.skip_token()
                         return ID.id_array[ID.id_array.index(t.get_token())]
                 else:
                         new_id = ID(t.get_token())
                         ID.id_array.extend([new_id])
                         ID.id_count += 1
                         print "ID not in id_array"
+                        t.skip_token()
                         return new_id
         
         def get_Id_value(self):
@@ -62,7 +137,11 @@ class ID:
         def set_Id_value(self, value):
                 self.value = value
         
-                
+class Error:
+        'Prints an error message and terminates execution of the program'
+        
+        def error(self, error_message):
+                quit(error_message)
         
 class Tokenizer:
         'Tokenizer that generates tokens from a list of strings'
@@ -445,7 +524,9 @@ if __name__ == "__main__":
         
         #fname = sys.argv[1]
         #data = read_file(fname)
-        data = "ABCD1234 ABC THE CAT ABC ABC 12;"
+        #data = "ABCD1234 ABC THE CAT ABC ABC ,,12;"
+        #data = "program int X; begin X = 25; write X; end"
+        data = "program int X; begin X = 25; write X; end"
         tokens = remove_spaces.findall(data)
         
         # Regex's
@@ -487,29 +568,28 @@ if __name__ == "__main__":
         
         print EOF
         
-        Id = ID("HELLO")
-        print Id.get_Id_name()
+        #Id = ID("HELLO")
+        #print Id.get_Id_name()
         
-        Id2 = ID("WORLD")
-        Id3 = ID("HELLO")
+        #Id2 = ID("WORLD")
+        #Id3 = ID("HELLO")
         
         t = Singleton().Instance()
-        ID.parse_id()
-        t.skip_token()
-        ID.parse_id()
-        t.skip_token()
-        ID.parse_id()
-        t.skip_token()    
-        ID.parse_id()
-        t.skip_token()   
-        ID.parse_id()
-        t.skip_token() 
-        ID.parse_id()
-        t.skip_token()        
         #ID.parse_id()
-        #ID.parse_id()        
-
+        #t.skip_token()
+        #ID.parse_id()
+        #t.skip_token()
+        #ID.parse_id()
+        #t.skip_token()    
+        #ID.parse_id()
+        #t.skip_token()   
+        #ID.parse_id()
+        #t.skip_token() 
+        #ID.parse_id()
+        #t.skip_token()        
+       
+        print t.all_tokens
         
-
-        
+        prog = Program()
+        prog.parse_program()
         
