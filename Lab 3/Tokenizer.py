@@ -214,7 +214,23 @@ class Out:
                 if tokenizer.get_token() != ";":
                         Error().error("Error: ';' needed at the end of a write statement")
                 tokenizer.skip_token() # skip ';' token
+
+class In:
+        'Input class'
+        
+        def __init__(self):
+                id_list = None
                 
+        def parse_out(self):
+                tokenizer = Singleton().Instance()
+                tokenizer.skip_token() # skip 'read' token
+                
+                id_list = Id_list()
+                id_list.parse_id_list_SS()
+                
+                if tokenizer.get_token() != ";":
+                        Error().error("Error: ';' needed at the end of a read statement")
+                tokenizer.skip_token() # skip ';' token
                         
         
 class DS:
