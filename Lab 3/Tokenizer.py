@@ -74,7 +74,7 @@ class Stmt:
         
         def parse_stmt(self):
                 tokenizer = Singleton().Instance()
-                tok_num = decode_token(str(tokenizer.get_token()))
+                tok_num = decode_single_token(str(tokenizer.get_token()))
                 print "PARSE_stmt token = " + tokenizer.get_token()
                 print tok_num
                 
@@ -82,7 +82,7 @@ class Stmt:
                         stmt_if = IF()
                         stmt_if.parse_if()
                         
-                elif tokenizer.get_token() == "loop":
+                elif tokenizer.get_token() == "while":
                         stmt_loop = Loop()
                         stmt_loop.parse_loop()
                         
@@ -195,7 +195,7 @@ class OP:
                 
                 if tok_num == NUMBER:
                         print "TOKEN in parse_op is a number " + str(tokenizer.get_token())
-                        tokenizer.skip_token()
+                        tokenizer.skip_token() # skip 'number' token
                 
                         
 class Out:
@@ -365,6 +365,8 @@ class Comp():
                
                 if tokenizer.get_token() != ")":
                         Error().error("Error expected ')'")
+                
+                tokenizer.skip_token() # skip ')' token
                         
 
 
@@ -420,7 +422,7 @@ class Id_list:
                         print "ID_LIST before skip_token = " + str(tokenizer.get_token())
                         tokenizer.skip_token() # skip ',' token
                         print "ID_LIST after skip_token = " + str(tokenizer.get_token())
-                        id_list.parse_id_list()
+                        id_list.parse_id_list_DS()
         
         
         def parse_id_list_SS(self):
@@ -435,7 +437,7 @@ class Id_list:
                                 print "ID_LIST before skip_token = " + str(tokenizer.get_token())
                                 tokenizer.skip_token() # skip ',' token
                                 print "ID_LIST after skip_token = " + str(tokenizer.get_token())
-                                id_list.parse_id_list()        
+                                id_list.parse_id_list_SS()        
 
 
 class ID:
@@ -1055,10 +1057,12 @@ if __name__ == "__main__":
         
         #fname = sys.argv[1]
         #data = read_file(fname)
+        data = read_file("test01.txt")
+        
         #data = "ABCD1234 ABC THE CAT ABC ABC ,,12;"
         #data = "program int X; begin X = 25; write X; end"
         #data = "program int X,Y,Z; begin X = 25; write X; end" # Tests parsing a id_list with more than one id
-        data = "program int X; int Y; int Z; int A; begin X = 25; write X; end" # Tests parsing a <dec seq> with more than one <dec>
+        #data = "program int X; int Y; int Z; int A; begin X = 25; write X; end" # Tests parsing a <dec seq> with more than one <dec>
         #data = "program int X; int Y; int Z; int A; begin X = 25; read X; end" # Tests parsing a <dec seq> with more than one <dec>
         
         tokens = remove_spaces.findall(data)
