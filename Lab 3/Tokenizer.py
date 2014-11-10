@@ -231,7 +231,50 @@ class In:
                 if tokenizer.get_token() != ";":
                         Error().error("Error: ';' needed at the end of a read statement")
                 tokenizer.skip_token() # skip ';' token
+        
+
+class IF:
+        'If class'
+        
+        def __init__(self):
+                cond = None
+                stmt_seq1 = None
+                stmt_seq2 = None
+        
+        def parse_if(self):
+                tokenizer = Singleton().Instance()
+                
+                tokenizer.skip_token() # skip 'if' token
+                
+                cond = Cond()
+                cond.parse_cond()
+                
+                if tokenizer.get_token() != "then":
+                        Error().error("Error 'then' expected after condition")
                         
+                tokenizer.skip_token() # skip 'then' token
+                stmt_seq1 = SS()
+                stmt_seq1.parse_ss()
+                
+                if tokenizer.get_token() == "end":
+                        tokenizer.skip_token() # skip 'end' token
+                        return
+                
+                if tokenizer.get_token() == "else":
+                        tokenizer.skip_token() #skip 'else' token
+                        
+                        stmt_seq2 = SS()
+                        stmt_seq2.parse_ss()
+                        
+                        if tokenizer.get_token() != "end":
+                                Error().error("Error: expected 'end'")
+                        
+                        tokenizer.skip_token() #skip 'end' token
+                
+                
+                
+
+                
 class Loop:
         'Loop class'
         
