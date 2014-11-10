@@ -221,7 +221,7 @@ class In:
         def __init__(self):
                 id_list = None
                 
-        def parse_out(self):
+        def parse_in(self):
                 tokenizer = Singleton().Instance()
                 tokenizer.skip_token() # skip 'read' token
                 
@@ -232,6 +232,8 @@ class In:
                         Error().error("Error: ';' needed at the end of a read statement")
                 tokenizer.skip_token() # skip ';' token
                         
+class Loop:
+        'Loop class'
         
 class DS:
         'Declaration sequence class'
@@ -924,6 +926,8 @@ if __name__ == "__main__":
         #data = "program int X; begin X = 25; write X; end"
         #data = "program int X,Y,Z; begin X = 25; write X; end" # Tests parsing a id_list with more than one id
         data = "program int X; int Y; int Z; int A; begin X = 25; write X; end" # Tests parsing a <dec seq> with more than one <dec>
+        #data = "program int X; int Y; int Z; int A; begin X = 25; read X; end" # Tests parsing a <dec seq> with more than one <dec>
+        
         tokens = remove_spaces.findall(data)
         
         # Regex's
