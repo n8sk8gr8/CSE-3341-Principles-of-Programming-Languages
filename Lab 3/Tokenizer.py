@@ -235,6 +235,96 @@ class In:
 class Loop:
         'Loop class'
         
+        def __init__(self):
+                cond = None
+                stmt_seq = None
+                
+        def parse_loop(self):
+                tokenizer = Singleton().Instance()
+                tokenizer.skip_token() # skip 'while' token
+                
+                cond = Cond()
+                cond.parse_cond()
+                
+                if tokenizer.get_token() != 'loop':
+                        Error().error("Error token after condition should be 'loop'")
+                
+                tokenizer.skip_token() # skip 'loop' token
+                
+                stmt_seq = SS()
+                stmt_seq.parse_ss()
+                
+                if tokenizer.get_token() != "end":
+                        Error().error("Error end token expected")
+                
+                tokenizer.skip_token() #skip 'end' token
+                
+                if tokenizer.get_token() != ";":
+                        Error().error("Error ';' need after end")
+                
+                tokenizer.skip_token() #skip ';' token
+                
+class Cond:
+        'Condition class'
+        
+        def __init__(self):
+                comp = None
+                cond1 = None
+                cond2 = None
+        
+        def parse_cond(self):
+                tokenizer = Singleton().Instance()
+                
+                if tokenizer.get_token() == "!":
+                        tokenizer.skip_token() #skip '!' token
+                        cond1 = Cond()
+                        cond1.parse_cond()
+                
+                elif tokenizer.get_token() == "[":
+                        tokenizer.skip_token() #skip '[' token
+                        cond1 = Cond()
+                        cond1.parse_cond()
+                        
+                        if tokenizer.get_token() != "&&" or tokenizer.get_token() == "||":
+                                Error().error("Error: '&&' or '||' token expected")
+                        
+                        tokenizer.skip_token() #skip '&&' or '||' token
+                
+                else:
+                        comp = Comp()
+                        comp.parse_comp()
+
+
+class Comp():
+        'Comparator class'
+        
+        def __init__(self):
+                op1 = None
+                op2 = None
+        
+        def parse_comp(self):
+                tokenizer = Singleton().Instance()
+               
+                if tokenizer.get_token() != "(":
+                        Error().error("Error: expected '('")
+                
+                tokenizer.skip_token() # skip '(' token
+                
+                op1 = OP()
+                op1.parse_op()
+                
+                if tokenizer.get_token() != "=!=" and tokenizer.get_token() != "==" and tokenizer.get_token() != "<" and tokenizer.get_token() != ">" and tokenizer.get_token() != "<=" and tokenizer.get_token() != ">=":
+                        Error().error("Error: expected a comparator operator, '=!=' or '==' or '<' or '>' or '<=' or '>='")
+                
+                tokenizer.skip_token() # skip '=!=' or '==' or '<' or '>' or '<=' or '>=' token
+                op2 = OP()
+                op2.parse_op()
+               
+                if tokenizer.get_token() != ")":
+                        Error().error("Error expected ')'")
+                        
+
+
 class DS:
         'Declaration sequence class'
         
