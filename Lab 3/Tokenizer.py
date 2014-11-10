@@ -58,7 +58,7 @@ class SS:
                 stmt = Stmt()
                 stmt.parse_stmt()
                 
-                if tokenizer.get_token() != "end":
+                if tokenizer.get_token() != "end" and tokenizer.get_token() != "else":
                         ss = SS()
                         ss.parse_ss()
 
@@ -261,7 +261,7 @@ class IF:
                         return
                 
                 if tokenizer.get_token() == "else":
-                        tokenizer.skip_token() #skip 'else' token
+                        tokenizer.skip_token() # skip 'else' token
                         
                         stmt_seq2 = SS()
                         stmt_seq2.parse_ss()
@@ -269,7 +269,12 @@ class IF:
                         if tokenizer.get_token() != "end":
                                 Error().error("Error: expected 'end'")
                         
-                        tokenizer.skip_token() #skip 'end' token
+                        tokenizer.skip_token() # skip 'end' token
+                        
+                        if tokenizer.get_token() != ";":
+                                Error().error("Error: expected ';' after end")
+                        
+                        tokenizer.skip_token() # skip ';' token
                 
                 
                 
@@ -356,10 +361,10 @@ class Comp():
                 op1 = OP()
                 op1.parse_op()
                 
-                if tokenizer.get_token() != "=!=" and tokenizer.get_token() != "==" and tokenizer.get_token() != "<" and tokenizer.get_token() != ">" and tokenizer.get_token() != "<=" and tokenizer.get_token() != ">=":
-                        Error().error("Error: expected a comparator operator, '=!=' or '==' or '<' or '>' or '<=' or '>='")
+                if tokenizer.get_token() != "!=" and tokenizer.get_token() != "==" and tokenizer.get_token() != "<" and tokenizer.get_token() != ">" and tokenizer.get_token() != "<=" and tokenizer.get_token() != ">=":
+                        Error().error("Error: expected a comparator operator, '!=' or '==' or '<' or '>' or '<=' or '>='")
                 
-                tokenizer.skip_token() # skip '=!=' or '==' or '<' or '>' or '<=' or '>=' token
+                tokenizer.skip_token() # skip '!=' or '==' or '<' or '>' or '<=' or '>=' token
                 op2 = OP()
                 op2.parse_op()
                
@@ -1057,7 +1062,7 @@ if __name__ == "__main__":
         
         #fname = sys.argv[1]
         #data = read_file(fname)
-        data = read_file("test01.txt")
+        data = read_file("test02.txt")
         
         #data = "ABCD1234 ABC THE CAT ABC ABC ,,12;"
         #data = "program int X; begin X = 25; write X; end"
