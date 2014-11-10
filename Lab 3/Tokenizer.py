@@ -56,6 +56,7 @@ class SS:
         
         def __init__(self):
                 self.stmt = None
+                self.ss = None
         
         def parse_ss(self):
                 tokenizer = Singleton().Instance()
@@ -76,6 +77,7 @@ class Stmt:
                 self.stmt_loop = None
                 self.stmt_in = None
                 self.stmt_out = None
+                self.stmt_alt = None
         
         def parse_stmt(self):
                 tokenizer = Singleton().Instance()
@@ -84,23 +86,28 @@ class Stmt:
                 print tok_num
                 
                 if tokenizer.get_token() == "if":
+                        self.stmt_alt = 2
                         self.stmt_if = IF()
                         self.stmt_if.parse_if()
                         
                 elif tokenizer.get_token() == "while":
+                        self.stmt_alt = 3
                         self.stmt_loop = Loop()
                         self.stmt_loop.parse_loop()
                         
                 elif tokenizer.get_token() == "read":
+                        self.stmt_alt = 4
                         self.stmt_in = In()
                         self.stmt_in.parse_in()
                 
                 elif tokenizer.get_token() == "write":
+                        self.stmt_alt = 5
                         self.stmt_out = Out()
                         self.stmt_out.parse_out()
                 
                 else:
                         print "TOKEN IN parse_stmt = " + str(tokenizer.get_token())
+                        self.stmt_alt = 1
                         self.stmt_assign = Assign()
                         self.stmt_assign.parse_assign()
                         
@@ -136,17 +143,27 @@ class Exp:
         def __init__(self):
                 self.term = None
                 self.exp = None
+                self.exp_alt = None
         
         def parse_exp(self):
                 
+                self.exp_alt = 1
                 self.term = Term()
                 self.term.parse_term()
                 tokenizer = Singleton().Instance()
                 
-                if tokenizer.get_token() == "+" or tokenizer.get_token() == "-":
-                        tokenizer.skip_token() # skip '+' or skip '-' token
+                if tokenizer.get_token() == "+":
+                        self.exp_alt = 2
+                        tokenizer.skip_token() # skip '+' token
                         self.exp = Exp()
                         self.exp.parse_exp()
+                        
+                if tokenizer.get_token() == "-":
+                        self.exp_alt = 3
+                        tokenizer.skip_token() #skip '-' token
+                        self.exp = Exp()
+                        self.exp.parse_exp()
+                        
         
  
 class Term:
@@ -155,14 +172,17 @@ class Term:
         def __init(self):
                 self.op = None
                 self.term = None
+                self.term_alt = None
                 
         def parse_term(self):
+                self.term_alt = 1
                 self.op = OP()
                 self.op.parse_op()
                 
                 tokenizer = Singleton().Instance()
                 
                 if tokenizer.get_token() == "*":
+                        self.term_alt = 2
                         tokenizer.skip_token() # skip '*' token
                         self.term = Term()
                         self.term.parse_term()
@@ -174,6 +194,7 @@ class OP:
                 self.num = None
                 self.ident = None
                 self.exp = None
+                self.alt = None
         
         def parse_op(self):
                 NUMBER = 31                
@@ -185,6 +206,7 @@ class OP:
                 print tok_num
                 print "TOKEN in parse_op is a number kind of " + str(tokenizer.get_token())
                 if tokenizer.get_token() == "(":
+                        self.term_alt = 3
                         tokenizer.skip_token() # skip '(' token
                         self.exp = Exp()
                         self.exp.parse_exp()
@@ -195,10 +217,12 @@ class OP:
                         tokenizer.skip_token # skip ')' token
                         
                 if tok_num == IDENTIFIER:
+                        self.term_alt = 2
                         self.ident = ID(tokenizer.get_token)
                         self.ident.parse_id_SS()
                 
                 if tok_num == NUMBER:
+                        self.term_alt = 1
                         print "TOKEN in parse_op is a number " + str(tokenizer.get_token())
                         tokenizer.skip_token() # skip 'number' token
                 
@@ -245,6 +269,7 @@ class IF:
                 self.cond = None
                 self.stmt_seq1 = None
                 self.stmt_seq2 = None
+                self.if_alt = None
         
         def parse_if(self):
                 tokenizer = Singleton().Instance()
@@ -262,10 +287,12 @@ class IF:
                 self.stmt_seq1.parse_ss()
                 
                 if tokenizer.get_token() == "end":
+                        self.if_alt = 1
                         tokenizer.skip_token() # skip 'end' token
                         return
                 
                 if tokenizer.get_token() == "else":
+                        self.if_alt = 2
                         tokenizer.skip_token() # skip 'else' token
                         
                         self.stmt_seq2 = SS()
@@ -324,11 +351,13 @@ class Cond:
                 self.comp = None
                 self.cond1 = None
                 self.cond2 = None
+                self.cond_alt = None
         
         def parse_cond(self):
                 tokenizer = Singleton().Instance()
                 
                 if tokenizer.get_token() == "!":
+                        self.cond_alt = 2
                         tokenizer.skip_token() #skip '!' token
                         self.cond1 = Cond()
                         self.cond1.parse_cond()
@@ -341,9 +370,16 @@ class Cond:
                         if tokenizer.get_token() != "&&" or tokenizer.get_token() == "||":
                                 Error().error("Error: '&&' or '||' token expected")
                         
+                        if tokenizer.get_token() == "&&":
+                                self.cond_alt = 3
+                        else:
+                                self.cond_alt = 4
+                        
                         tokenizer.skip_token() #skip '&&' or '||' token
+                        
                 
                 else:
+                        self.cond_alt = 1
                         self.comp = Comp()
                         self.comp.parse_comp()
 
@@ -386,6 +422,7 @@ class DS:
         
         def __init__(self):
                 self.dec = None # Single declaration 
+                self.ds = None
                 
         def parse_ds(self):
                 tokenizer = Singleton().Instance()
