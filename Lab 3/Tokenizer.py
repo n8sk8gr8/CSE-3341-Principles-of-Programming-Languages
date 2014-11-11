@@ -1,6 +1,7 @@
 import re
 import sys
 
+indent = "    "
 class Singleton:
         'Singleton class to ensure only one tokenizer'
         instance = None
@@ -49,7 +50,7 @@ class Program:
                 print "program "
                 self.ds.print_ds()
                 print "begin"
-                self.ss.print_program()
+                self.ss.print_ss()
                 print "end"
                 
                         
@@ -70,6 +71,13 @@ class SS:
                 if tokenizer.get_token() != "end" and tokenizer.get_token() != "else":
                         self.ss = SS()
                         self.ss.parse_ss()
+        
+        def print_ss(self):
+                self.stmt.print_stmt()
+                
+                if self.ss != None:
+                        self.ss.print_ss()                
+                
 
 class Stmt:
         'Statement class which contains a single statement'
@@ -85,8 +93,8 @@ class Stmt:
         def parse_stmt(self):
                 tokenizer = Singleton().Instance()
                 tok_num = decode_single_token(str(tokenizer.get_token()))
-                print "PARSE_stmt token = " + tokenizer.get_token()
-                print tok_num
+                #print "PARSE_stmt token = " + tokenizer.get_token()
+                #print tok_num
                 
                 if tokenizer.get_token() == "if":
                         self.stmt_alt = 2
@@ -109,10 +117,33 @@ class Stmt:
                         self.stmt_out.parse_out()
                 
                 else:
-                        print "TOKEN IN parse_stmt = " + str(tokenizer.get_token())
+                        #print "TOKEN IN parse_stmt = " + str(tokenizer.get_token())
                         self.stmt_alt = 1
                         self.stmt_assign = Assign()
                         self.stmt_assign.parse_assign()
+        
+        def print_stmt(self):
+                
+                if self.stmt_assign != None:
+                        self.stmt_assign.print_assign()
+                        
+                elif self.stmt_if != None:
+                        self.stmt_if.print_if()
+                        
+                elif self.stmt_loop != None:
+                        self.stmt_loop.print_loop()
+                        
+                elif self.stmt_in != None:
+                        self.stmt_in.print_in()
+                        
+                elif self.stmt_out != None:
+                        self.stmt_out.print_out()
+                        
+                #if self.stmt_alt = 1:
+                #if self.stmt_alt = 2:
+                #if self.stmt_alt = 3:
+                #if self.stmt_alt = 4:
+                #if self.stmt_alt = 5:
                         
 
 class Assign:
@@ -124,7 +155,7 @@ class Assign:
         
         def parse_assign(self):
                 tokenizer = Singleton().Instance()
-                print "TOKEN IN parse assign " + str(tokenizer.get_token())
+                #print "TOKEN IN parse assign " + str(tokenizer.get_token())
                 self.ident = ID(tokenizer.get_token())
                 self.ident.parse_id_SS()
                 
@@ -135,10 +166,17 @@ class Assign:
                 self.exp = Exp()
                 self.exp.parse_exp()
                 
-                print "TOKEN IN parse assign after parse_exp is called " + str(tokenizer.get_token())
+                #print "TOKEN IN parse assign after parse_exp is called " + str(tokenizer.get_token())
                 if tokenizer.get_token() != ";":
                                         Error().error("Error: missing ';' after expression")                
                 tokenizer.skip_token() # skip ';' token
+                
+        def print_assign(self):
+                sys.stdout.write(indent)
+                sys.stdout.write(self.ident.get_Id_name()),
+                sys.stdout.write(" = ")
+                self.exp.print_exp()
+                print ";"
   
 class Exp:
         'Expression class'
@@ -167,7 +205,20 @@ class Exp:
                         self.exp = Exp()
                         self.exp.parse_exp()
                         
-        
+        def print_exp(self):
+                if self.exp_alt == 1:
+                        self.term.print_term()
+                
+                elif self.exp_alt == 2:
+                        self.term.print_term()
+                        sys.stdout.write(" + "),
+                        self.exp.print_exp()
+                
+                elif self.exp_alt == 3:
+                        self.term.print_term()
+                        sys.stdout.write(" - "),
+                        self.exp.print_exp()                
+                
  
 class Term:
         'Term class'
@@ -175,20 +226,29 @@ class Term:
         def __init(self):
                 self.op = None
                 self.term = None
-                self.term_alt = None
+                self.alt = None
                 
         def parse_term(self):
-                self.term_alt = 1
+                self.alt = 1
                 self.op = OP()
                 self.op.parse_op()
                 
                 tokenizer = Singleton().Instance()
                 
                 if tokenizer.get_token() == "*":
-                        self.term_alt = 2
+                        self.alt = 2
                         tokenizer.skip_token() # skip '*' token
                         self.term = Term()
                         self.term.parse_term()
+        
+        def print_term(self):
+                if self.alt == 1:
+                        self.op.print_op()
+                
+                elif self.alt == 2:
+                        self.op.print_op()
+                        sys.stdout.write(" * ")
+                
                         
 class OP:
         'Operation class'
@@ -205,11 +265,11 @@ class OP:
                 tokenizer = Singleton().Instance()
                 tok_num = decode_single_token(tokenizer.get_token())
                 
-                print "HELLO inside of parse_op()"
-                print tok_num
-                print "TOKEN in parse_op is a number kind of " + str(tokenizer.get_token())
+                #print "HELLO inside of parse_op()"
+                #print tok_num
+                #print "TOKEN in parse_op is a number kind of " + str(tokenizer.get_token())
                 if tokenizer.get_token() == "(":
-                        self.term_alt = 3
+                        self.alt = 3
                         tokenizer.skip_token() # skip '(' token
                         self.exp = Exp()
                         self.exp.parse_exp()
@@ -220,14 +280,30 @@ class OP:
                         tokenizer.skip_token # skip ')' token
                         
                 if tok_num == IDENTIFIER:
-                        self.term_alt = 2
-                        self.ident = ID(tokenizer.get_token)
+                        self.alt = 2
+                        self.ident = ID(tokenizer.get_token())
                         self.ident.parse_id_SS()
                 
                 if tok_num == NUMBER:
-                        self.term_alt = 1
-                        print "TOKEN in parse_op is a number " + str(tokenizer.get_token())
+                        self.alt = 1
+                        self.num = tokenizer.get_token()
+                        #print "TOKEN in parse_op is a number " + str(tokenizer.get_token())
                         tokenizer.skip_token() # skip 'number' token
+                        
+        def print_op(self):
+                if self.alt == 1:
+                        sys.stdout.write(self.num),
+                
+                elif self.alt == 2:
+                        sys.stdout.write(self.ident.get_Id_name()),
+                        #print
+                        #print "SHOULD BE a ID = ",
+                        #print self.ident.name
+                
+                elif self.alt == 3:
+                        sys.stdout.write("("),
+                        self.exp.parse_exp()
+                        sys.stdout.write(")")
                 
                         
 class Out:
@@ -246,6 +322,13 @@ class Out:
                 if tokenizer.get_token() != ";":
                         Error().error("Error: ';' needed at the end of a write statement")
                 tokenizer.skip_token() # skip ';' token
+                
+        def print_out(self):
+                sys.stdout.write(indent)                
+                sys.stdout.write("write "),
+                self.id_list.print_id_list()
+                sys.stdout.write(";")
+                print
 
 class In:
         'Input class'
@@ -263,6 +346,12 @@ class In:
                 if tokenizer.get_token() != ";":
                         Error().error("Error: ';' needed at the end of a read statement")
                 tokenizer.skip_token() # skip ';' token
+                
+        def print_in(self):
+                sys.stdout.write(indent)
+                sys.stdout.write("read "),
+                self.id_list.print_id_list()
+                sys.stdout.write(";")
         
 
 class IF:
@@ -312,7 +401,21 @@ class IF:
                         tokenizer.skip_token() # skip ';' token
                 
                 
+        def print_if(self):
+                sys.stdout.write("if "),
+                self.cond.print_cond()
+                sys.stdout.write("then "),
+                self.stmt1_seq1.print_stmt()
                 
+                if self.if_alt == 1:
+                        sys.stdout.write("end")
+                        print
+                
+                elif self.if_alt == 2:
+                        sys.stdout.write("else "),
+                        self.stmt_seq2.print_stmt()
+                        sys.stdout.write("end")
+                        print
 
                 
 class Loop:
@@ -346,7 +449,29 @@ class Loop:
                         Error().error("Error ';' need after end")
                 
                 tokenizer.skip_token() #skip ';' token
+        
+        def print_loop(self):
+                print
+                sys.stdout.write(indent),
+                sys.stdout.write("while"),
+                self.cond.print_cond()
+                sys.stdout.write("loop")
+                print
+                local_indent = "    "
+                global indent
+                indent_size = len(indent) / 4
+                indent_size += 1
+                indent = local_indent * indent_size
+                self.stmt_seq.print_ss()
+                indent_size -= 1
+                indent = local_indent * indent_size
+                sys.stdout.write(indent)
+                sys.stdout.write("end;"),
+                print
                 
+                
+                
+        
 class Cond:
         'Condition class'
         
@@ -354,13 +479,14 @@ class Cond:
                 self.comp = None
                 self.cond1 = None
                 self.cond2 = None
-                self.cond_alt = None
+                self.comp_op = None
+                self.alt = None
         
         def parse_cond(self):
                 tokenizer = Singleton().Instance()
                 
                 if tokenizer.get_token() == "!":
-                        self.cond_alt = 2
+                        self.alt = 2
                         tokenizer.skip_token() #skip '!' token
                         self.cond1 = Cond()
                         self.cond1.parse_cond()
@@ -374,17 +500,34 @@ class Cond:
                                 Error().error("Error: '&&' or '||' token expected")
                         
                         if tokenizer.get_token() == "&&":
-                                self.cond_alt = 3
+                                self.alt = 3
                         else:
-                                self.cond_alt = 4
+                                self.alt = 4
                         
+                        self.comp_op = tokenizer.get_token()
                         tokenizer.skip_token() #skip '&&' or '||' token
                         
                 
                 else:
-                        self.cond_alt = 1
+                        self.alt = 1
                         self.comp = Comp()
                         self.comp.parse_comp()
+        
+        def print_cond(self):
+                if self.alt == 1:
+                        self.comp.print_comp()
+                        
+                if self.alt == 2:
+                        sys.stdout.write("!"),
+                        self.cond1.print_cond()
+                        
+                if self.alt == 3 or self.alt == 4:
+                        sys.stdout.write("[ "),
+                        self.cond1.print_cond()
+                        sys.stdout.write(" " + self.comp_op + " "),
+                        self.cond2.print_cond()
+                        sys.stdout.write(" ]")
+                        
 
 
 class Comp():
@@ -393,6 +536,7 @@ class Comp():
         def __init__(self):
                 self.op1 = None
                 self.op2 = None
+                self.comp_op = None
         
         def parse_comp(self):
                 tokenizer = Singleton().Instance()
@@ -408,7 +552,7 @@ class Comp():
                 if tokenizer.get_token() != "!=" and tokenizer.get_token() != "==" and tokenizer.get_token() != "<" and tokenizer.get_token() != ">" and tokenizer.get_token() != "<=" and tokenizer.get_token() != ">=":
                         Error().error("Error: expected a comparator operator, '!=' or '==' or '<' or '>' or '<=' or '>='")
                 
-                comperator_op = tokenizer.get_token()
+                self.comp_op = tokenizer.get_token()
                 tokenizer.skip_token() # skip '!=' or '==' or '<' or '>' or '<=' or '>=' token
                 self.op2 = OP()
                 self.op2.parse_op()
@@ -417,7 +561,14 @@ class Comp():
                         Error().error("Error expected ')'")
                 
                 tokenizer.skip_token() # skip ')' token
-                        
+                
+                
+        def print_comp(self):
+                sys.stdout.write(" ("),
+                self.op1.print_op()
+                sys.stdout.write(" " + self.comp_op + " ")
+                self.op2.print_op()
+                sys.stdout.write(") "),
 
 
 class DS:
@@ -522,12 +673,12 @@ class ID:
         id_count = 0    
         
         def __init__(self, name):
-                self.__name = name
+                self.name = name
                 self.value = None
                 self.initalized = False
                 
         def get_Id_name(self):
-                return self.__name
+                return self.name
        
         '''
         Function overloads == operator to be able to compare tokens and ID's 
@@ -535,7 +686,7 @@ class ID:
         
         '''
         def __eq__(self, other):
-                return self.__name == other
+                return self.name == other
 
         @staticmethod       
         def parse_id_DS():
