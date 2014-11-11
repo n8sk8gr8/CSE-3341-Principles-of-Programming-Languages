@@ -11,11 +11,9 @@ class Singleton:
                 if (Singleton.instance == None):
                         Singleton.instance = Tokenizer()
                         Singleton.num += 1
-                        #print Singleton.num
                         return Singleton.instance
                 else:
                         Singleton.num += 1
-                        #print "NUM2 = " + str(Singleton.num)
                         return Singleton.instance
 
 class Program:
@@ -93,8 +91,6 @@ class Stmt:
         def parse_stmt(self):
                 tokenizer = Singleton().Instance()
                 tok_num = decode_single_token(str(tokenizer.get_token()))
-                #print "PARSE_stmt token = " + tokenizer.get_token()
-                #print tok_num
                 
                 if tokenizer.get_token() == "if":
                         self.stmt_alt = 2
@@ -117,7 +113,6 @@ class Stmt:
                         self.stmt_out.parse_out()
                 
                 else:
-                        #print "TOKEN IN parse_stmt = " + str(tokenizer.get_token())
                         self.stmt_alt = 1
                         self.stmt_assign = Assign()
                         self.stmt_assign.parse_assign()
@@ -155,7 +150,6 @@ class Assign:
         
         def parse_assign(self):
                 tokenizer = Singleton().Instance()
-                #print "TOKEN IN parse assign " + str(tokenizer.get_token())
                 self.ident = ID(tokenizer.get_token())
                 self.ident.parse_id_SS()
                 
@@ -166,7 +160,6 @@ class Assign:
                 self.exp = Exp()
                 self.exp.parse_exp()
                 
-                #print "TOKEN IN parse assign after parse_exp is called " + str(tokenizer.get_token())
                 if tokenizer.get_token() != ";":
                                         Error().error("Error: missing ';' after expression")                
                 tokenizer.skip_token() # skip ';' token
@@ -265,9 +258,6 @@ class OP:
                 tokenizer = Singleton().Instance()
                 tok_num = decode_single_token(tokenizer.get_token())
                 
-                #print "HELLO inside of parse_op()"
-                #print tok_num
-                #print "TOKEN in parse_op is a number kind of " + str(tokenizer.get_token())
                 if tokenizer.get_token() == "(":
                         self.alt = 3
                         tokenizer.skip_token() # skip '(' token
@@ -287,7 +277,6 @@ class OP:
                 if tok_num == NUMBER:
                         self.alt = 1
                         self.num = tokenizer.get_token()
-                        #print "TOKEN in parse_op is a number " + str(tokenizer.get_token())
                         tokenizer.skip_token() # skip 'number' token
                         
         def print_op(self):
@@ -296,9 +285,6 @@ class OP:
                 
                 elif self.alt == 2:
                         sys.stdout.write(self.ident.get_Id_name()),
-                        #print
-                        #print "SHOULD BE a ID = ",
-                        #print self.ident.name
                 
                 elif self.alt == 3:
                         sys.stdout.write("("),
@@ -352,6 +338,7 @@ class In:
                 sys.stdout.write("read "),
                 self.id_list.print_id_list()
                 sys.stdout.write(";")
+                print
         
 
 class IF:
@@ -402,20 +389,41 @@ class IF:
                 
                 
         def print_if(self):
+                sys.stdout.write(indent)
                 sys.stdout.write("if "),
                 self.cond.print_cond()
-                sys.stdout.write("then "),
-                self.stmt1_seq1.print_stmt()
+                sys.stdout.write("then"),
+                print
+                local_indent = "    "
+                global indent
+                indent_size = len(indent) / 4
+                indent_size += 1
+                indent = local_indent * indent_size
+                
+                self.stmt_seq1.print_ss()
+                
+                indent_size -= 1
+                indent = local_indent * indent_size
+                sys.stdout.write(indent)                                
                 
                 if self.if_alt == 1:
                         sys.stdout.write("end")
                         print
                 
                 elif self.if_alt == 2:
-                        sys.stdout.write("else "),
-                        self.stmt_seq2.print_stmt()
-                        sys.stdout.write("end")
+                        sys.stdout.write("else")
                         print
+                        indent_size += 1
+                        indent = local_indent * indent_size  
+                        
+                        self.stmt_seq2.print_ss()
+                        
+                        indent_size -= 1
+                        indent = local_indent * indent_size
+                        
+                        sys.stdout.write(indent)                        
+                        sys.stdout.write("end")
+                        print ";"
 
                 
 class Loop:
@@ -451,7 +459,6 @@ class Loop:
                 tokenizer.skip_token() #skip ';' token
         
         def print_loop(self):
-                print
                 sys.stdout.write(indent),
                 sys.stdout.write("while"),
                 self.cond.print_cond()
@@ -630,32 +637,24 @@ class Id_list:
                 self.id_list = None
         
         def parse_id_list_DS(self):
-                tokenizer = Singleton().Instance()
-                #print "TOKEN IN ID_LIST = " + str(tokenizer.get_token())
-                
+                tokenizer = Singleton().Instance()                
                 self.ident = ID(tokenizer.get_token())
                 self.ident.parse_id_DS()
                 
                 if tokenizer.get_token() == "," and tokenizer.get_token() != ";":
                         self.id_list = Id_list()
-                        #print "ID_LIST before skip_token = " + str(tokenizer.get_token())
                         tokenizer.skip_token() # skip ',' token
-                        #print "ID_LIST after skip_token = " + str(tokenizer.get_token())
                         self.id_list.parse_id_list_DS()
         
         
         def parse_id_list_SS(self):
-                        tokenizer = Singleton().Instance()
-                        #print "TOKEN IN ID_LIST = " + str(tokenizer.get_token())
-                        
+                        tokenizer = Singleton().Instance()                        
                         self.ident = ID(tokenizer.get_token())
                         self.ident.parse_id_SS()
                         
                         if tokenizer.get_token() == "," and tokenizer.get_token() != ";":
                                 self.id_list = Id_list()
-                                #print "ID_LIST before skip_token = " + str(tokenizer.get_token())
                                 tokenizer.skip_token() # skip ',' token
-                                #print "ID_LIST after skip_token = " + str(tokenizer.get_token())
                                 self.id_list.parse_id_list_SS()        
 
                                 
@@ -691,7 +690,6 @@ class ID:
         @staticmethod       
         def parse_id_DS():
                 t = Singleton().Instance()
-                #print t.get_token()
                 
                 if t.get_token() in ID.id_array:
                         Error().error("Error: " + str(t.get_token()) + " already defined")
@@ -706,15 +704,12 @@ class ID:
         @staticmethod
         def parse_id_SS():
                 t = Singleton().Instance()
-                #print "TOKEN in parse_id_SS = " + str(t.get_token())
                 if t.get_token() in ID.id_array:
-                        tok = t.get_token()
+                        tok = t.get_token() # skip 'Identifer' token
                         t.skip_token()
-                        #print "next TOKEN in parse_id_SS = " + str(t.get_token())
                         return ID.id_array[ID.id_array.index(tok)]
                 else:
                         Error().error("Error: " + str(t.get_token()) + " was not defined")
-        #def print_id():
                 
 
         def get_Id_value(self):
@@ -741,7 +736,6 @@ class Tokenizer:
                 self.position += 1
                 
         def get_token(self):
-                #print 
                 return self.all_tokens[self.position]       
                 
         
@@ -1304,39 +1298,14 @@ if __name__ == "__main__":
         EOF = 33
         
         # Create tokenizer object        
-        #tokenizer = Tokenizer()
         tokenizer = Singleton().Instance()
         
         for token in range(len(tokens)):
                 tokenizer.generate_tokens(tokens[token])
         
-        # Testing get_token() and skip_token()        
-        #for t in range(len(tokenizer.all_tokens)):
-        #        print "TOKEN = " + str(tokenizer.get_token())
-        #        
-        #        tokenizer.skip_token()
-        
         print EOF
         
-        #Id = ID("HELLO")
-        #print Id.get_Id_name()
-        
-        #Id2 = ID("WORLD")
-        #Id3 = ID("HELLO")
-        
-        t = Singleton().Instance()
-        #ID.parse_id()
-        #t.skip_token()
-        #ID.parse_id()
-        #t.skip_token()
-        #ID.parse_id()
-        #t.skip_token()    
-        #ID.parse_id()
-        #t.skip_token()   
-        #ID.parse_id()
-        #t.skip_token() 
-        #ID.parse_id()
-        #t.skip_token()        
+        t = Singleton().Instance()        
        
         print t.all_tokens
         
