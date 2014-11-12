@@ -51,7 +51,8 @@ class Program:
                 self.ss.print_ss()
                 print "end"
                 
-                        
+        def exec_program(self):
+                self.ss.exec_ss()
 
 class SS:
         'Statement sequence class'
@@ -74,7 +75,13 @@ class SS:
                 self.stmt.print_stmt()
                 
                 if self.ss != None:
-                        self.ss.print_ss()                
+                        self.ss.print_ss()    
+        
+        def exec_ss(self):
+                self.stmt.exec_stmt()
+                
+                if self.ss != None:
+                        self.ss.exec_ss()
                 
 
 class Stmt:
@@ -134,12 +141,22 @@ class Stmt:
                 elif self.stmt_out != None:
                         self.stmt_out.print_out()
                         
-                #if self.stmt_alt = 1:
-                #if self.stmt_alt = 2:
-                #if self.stmt_alt = 3:
-                #if self.stmt_alt = 4:
-                #if self.stmt_alt = 5:
                         
+        def exec_stmt(self):
+                if self.stmt_assign != None:
+                        self.stmt_assign.exec_assign()
+                        
+                elif self.stmt_if != None:
+                        self.stmt_if.exec_if()
+                        
+                elif self.stmt_loop != None:
+                        self.stmt_loop.exec_loop()
+                        
+                elif self.stmt_in != None:
+                        self.stmt_in.exec_in()
+                        
+                elif self.stmt_out != None:
+                        self.stmt_out.exec_out()                
 
 class Assign:
         'Assign class'
@@ -170,6 +187,9 @@ class Assign:
                 sys.stdout.write(" = ")
                 self.exp.print_exp()
                 print ";"
+                
+        def exec_assign(self):
+                self.ident.set_Id_value(self.exp.exec_exp())
   
 class Exp:
         'Expression class'
@@ -212,7 +232,20 @@ class Exp:
                         sys.stdout.write(" - "),
                         self.exp.print_exp()                
                 
- 
+                
+        def exec_exp(self):
+                if self.exp_alt == 1:
+                        self.term.exec_term()
+                
+                elif self.exp_alt == 2:
+                        self.term.exec_term()
+                        self.exp.exec_exp()
+                
+                elif self.exp_alt == 3:
+                        self.term.exec_term()
+                        self.exp.exec_exp()                
+        
+        
 class Term:
         'Term class'
         
@@ -239,8 +272,15 @@ class Term:
                         self.op.print_op()
                 
                 elif self.alt == 2:
-                        self.op.print_op()
+                        self.term.print_term()
                         sys.stdout.write(" * ")
+        
+        def exec_term(self):
+                if self.alt == 1:
+                        self.op.exec_op()
+                
+                elif self.alt == 2:
+                        self.term.exec_term()
                 
                         
 class OP:
@@ -288,8 +328,19 @@ class OP:
                 
                 elif self.alt == 3:
                         sys.stdout.write("("),
-                        self.exp.parse_exp()
+                        self.exp.print_exp()
                         sys.stdout.write(")")
+        
+        
+        def exec_op(self):
+                if self.alt == 1:
+                        return(self.num),
+                
+                elif self.alt == 2:
+                        return(self.ident.get_value()),
+                
+                elif self.alt == 3:
+                        self.exp.exec_exp()
                 
                         
 class Out:
@@ -339,6 +390,9 @@ class In:
                 self.id_list.print_id_list()
                 sys.stdout.write(";")
                 print
+        
+        def exec_in(self):
+                self.id_list.exec_id_list()
         
 
 class IF:
@@ -664,6 +718,10 @@ class Id_list:
                 if self.id_list != None:
                         sys.stdout.write(", "),
                         self.id_list.print_id_list()
+                        
+        
+        def exec_id_list(self):
+                pass
                 
 class ID:
         'Identifier class'
@@ -1312,4 +1370,4 @@ if __name__ == "__main__":
         prog = Program()
         prog.parse_program()
         prog.print_program()
-        
+        prog.exec_program()
