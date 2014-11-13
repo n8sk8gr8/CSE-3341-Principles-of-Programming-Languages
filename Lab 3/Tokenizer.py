@@ -189,7 +189,11 @@ class Assign:
                 print ";"
                 
         def exec_assign(self):
+                #print self.ident.get_Id_name()
+                #print self.exp.exec_exp()
                 self.ident.set_Id_value(self.exp.exec_exp())
+                #print self.ident.get_Id_value()
+                #return self.ident.get_Id_value()
   
 class Exp:
         'Expression class'
@@ -235,15 +239,14 @@ class Exp:
                 
         def exec_exp(self):
                 if self.exp_alt == 1:
-                        self.term.exec_term()
-                
+                        return int(self.term.exec_term())
+
                 elif self.exp_alt == 2:
-                        self.term.exec_term()
-                        self.exp.exec_exp()
-                
+                        return int(self.term.exec_term()) + int(self.exp.exec_exp())
+
                 elif self.exp_alt == 3:
-                        self.term.exec_term()
-                        self.exp.exec_exp()                
+                        return int(self.term.exec_term()) - int(self.exp.exec_exp())
+                        
         
         
 class Term:
@@ -277,10 +280,12 @@ class Term:
         
         def exec_term(self):
                 if self.alt == 1:
-                        self.op.exec_op()
+                        return int(self.op.exec_op())
+                        
                 
                 elif self.alt == 2:
-                        self.term.exec_term()
+                        return int(self.op.exec_op()) * int(self.term.exec_term())
+                        
                 
                         
 class OP:
@@ -334,14 +339,17 @@ class OP:
         
         def exec_op(self):
                 if self.alt == 1:
-                        return(self.num),
+                        return(self.num)
                 
                 elif self.alt == 2:
-                        return(self.ident.get_value()),
+                        if self.ident.get_Id_value() != None:
+                                return(self.ident.get_Id_value())
+                        else:
+                                Error().error("Runtime Error: " + str(self.ident.get_Id_name()) + " does not contain a value")
                 
                 elif self.alt == 3:
-                        self.exp.exec_exp()
-                
+                        return self.exp.exec_exp()
+                        
                         
 class Out:
         'Output class'
@@ -366,6 +374,11 @@ class Out:
                 self.id_list.print_id_list()
                 sys.stdout.write(";")
                 print
+        
+        def exec_out(self):
+                self.id_list.exec_id_list_write()
+                #print self.id_list.exec_id_list()
+                
 
 class In:
         'Input class'
@@ -443,13 +456,13 @@ class IF:
                 
                 
         def print_if(self):
+                global indent                
                 sys.stdout.write(indent)
                 sys.stdout.write("if "),
                 self.cond.print_cond()
                 sys.stdout.write("then"),
                 print
                 local_indent = "    "
-                global indent
                 indent_size = len(indent) / 4
                 indent_size += 1
                 indent = local_indent * indent_size
@@ -513,13 +526,13 @@ class Loop:
                 tokenizer.skip_token() #skip ';' token
         
         def print_loop(self):
+                global indent                
                 sys.stdout.write(indent),
                 sys.stdout.write("while"),
                 self.cond.print_cond()
                 sys.stdout.write("loop")
                 print
                 local_indent = "    "
-                global indent
                 indent_size = len(indent) / 4
                 indent_size += 1
                 indent = local_indent * indent_size
@@ -530,7 +543,10 @@ class Loop:
                 sys.stdout.write("end;"),
                 print
                 
-                
+        
+        def exec_loop(self):
+                while self.cond.exec_cond():
+                        self.stmt_seq.exec_ss()
                 
         
 class Cond:
@@ -589,7 +605,21 @@ class Cond:
                         self.cond2.print_cond()
                         sys.stdout.write(" ]")
                         
-
+                        
+        def exec_cond(self):
+                if self.alt == 1:
+                        return self.comp.exec_comp()
+                        
+                if self.alt == 2:
+                        return (not self.cond1)
+                        
+                if self.alt == 3:
+                        return (self.cond1.exec_cond() and self.cond2.exec_cond())
+                
+                if self.alt == 4:
+                        return (self.cond1.exec_cond() or self.cond2.exec_cond())
+                                      
+                
 
 class Comp():
         'Comparator class'
@@ -630,6 +660,27 @@ class Comp():
                 sys.stdout.write(" " + self.comp_op + " ")
                 self.op2.print_op()
                 sys.stdout.write(") "),
+                
+        
+        def exec_comp(self):  
+                if self.comp_op == "!=":
+                        return self.op1.exec_op() != self.op2.exec_op() 
+                
+                elif self.comp_op == "==":
+                        return self.op1.exec_op() == self.op2.exec_op() 
+                
+                elif self.comp_op == "<":
+                        return self.op1.exec_op() < self.op2.exec_op() 
+                
+                elif self.comp_op == ">":
+                        return self.op1.exec_op() != self.op2.exec_op()   
+                
+                elif self.comp_op == "<=":
+                        return self.op1.exec_op() != self.op2.exec_op() 
+                
+                elif self.comp_op == ">=":
+                        return self.op1.exec_op() >= self.op2.exec_op()                 
+                                
 
 
 class DS:
@@ -689,6 +740,7 @@ class Id_list:
         def __init__(self):
                 self.ident = None
                 self.id_list = None
+                self.alt = None
         
         def parse_id_list_DS(self):
                 tokenizer = Singleton().Instance()                
@@ -704,9 +756,11 @@ class Id_list:
         def parse_id_list_SS(self):
                         tokenizer = Singleton().Instance()                        
                         self.ident = ID(tokenizer.get_token())
+                        self.alt = 1
                         self.ident.parse_id_SS()
                         
                         if tokenizer.get_token() == "," and tokenizer.get_token() != ";":
+                                self.alt = 2
                                 self.id_list = Id_list()
                                 tokenizer.skip_token() # skip ',' token
                                 self.id_list.parse_id_list_SS()        
@@ -721,7 +775,21 @@ class Id_list:
                         
         
         def exec_id_list(self):
-                pass
+                if self.alt == 1:
+                        return self.ident.get_Id_name()
+                                
+                if self.alt == 2:
+                        return self.id_list.exec_id_list()
+                
+        
+        def exec_id_list_write(self):
+                if self.alt == 1:
+                        print self.ident.get_Id_name(),
+                        print " = ",
+                        print self.ident.get_Id_value()
+                                
+                if self.alt == 2:
+                        return self.id_list.exec_id_list()         
                 
 class ID:
         'Identifier class'
@@ -771,11 +839,16 @@ class ID:
                 
 
         def get_Id_value(self):
-                return self.value
+                if self.name in ID.id_array:
+                        return ID.id_array[ID.id_array.index(self.name)].value   
+                else:
+                        Error().error("Shouldn't make it this far")
         
         def set_Id_value(self, value):
-                self.value = value
-        
+                if self.name in ID.id_array:
+                        ID.id_array[ID.id_array.index(self.name)].value = value
+                        
+                        
 class Error:
         'Prints an error message and terminates execution of the program'
         
@@ -786,7 +859,6 @@ class Tokenizer:
         'Tokenizer that generates tokens from a list of strings'
         
         def __init__(self):
-                #self.current_token = ""
                 self.all_tokens = []
                 self.position = 0;
         
@@ -1321,7 +1393,7 @@ if __name__ == "__main__":
         
         #fname = sys.argv[1]
         #data = read_file(fname)
-        data = read_file("test03.txt")
+        data = read_file("test04.txt")
         
         #data = "ABCD1234 ABC THE CAT ABC ABC ,,12;"
         #data = "program int X; begin X = 25; write X; end"
