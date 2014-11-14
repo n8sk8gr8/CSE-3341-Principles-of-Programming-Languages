@@ -377,7 +377,6 @@ class Out:
         
         def exec_out(self):
                 self.id_list.exec_id_list_write()
-                #print self.id_list.exec_id_list()
                 
 
 class In:
@@ -405,7 +404,11 @@ class In:
                 print
         
         def exec_in(self):
-                self.id_list.exec_id_list()
+                input_data = read_file("inputdata2-01.txt")
+                #input_data = read_file(sys.argv[2])
+                input_data = remove_spaces.findall(input_data)
+                self.id_list.exec_id_list_read([input_data])
+                
         
 
 class IF:
@@ -491,6 +494,19 @@ class IF:
                         sys.stdout.write(indent)                        
                         sys.stdout.write("end")
                         print ";"
+        
+        
+        def exec_if(self):
+                if self.if_alt == 1:
+                        if self.cond.exec_cond():
+                                self.stmt.seq1.exec_ss()
+                                
+                elif self.alt == 2:
+                        if self.cond.exec_cond():
+                                self.stmt.seq1()  
+                        
+                        else:
+                                self.stmt.seq2.exec_ss()
 
                 
 class Loop:
@@ -774,13 +790,16 @@ class Id_list:
                         self.id_list.print_id_list()
                         
         
-        def exec_id_list(self):
+        def exec_id_list_read(self, inputdata):
                 if self.alt == 1:
-                        return self.ident.get_Id_name()
+                        name = self.ident.get_Id_name()
+                        inputdata.reverse()
+                        num = inputdata.pop()
+                        self.ident.set_Id_value(int(num[0]))
                                 
-                if self.alt == 2:
-                        return self.id_list.exec_id_list()
-                
+                if self.alt == 2 and self.id_list != None and len(inputdata) != 0:
+                        self.id_list.exec_id_list(inputdata)
+
         
         def exec_id_list_write(self):
                 if self.alt == 1:
@@ -846,7 +865,10 @@ class ID:
         
         def set_Id_value(self, value):
                 if self.name in ID.id_array:
-                        ID.id_array[ID.id_array.index(self.name)].value = value
+                        #print len(value)
+                        ID.id_array[ID.id_array.index(self.name)].value = int(value)
+                else:
+                        Error().error("Error: " + str(self.name) + " is not declared")                
                         
                         
 class Error:
@@ -1388,18 +1410,12 @@ def read_file(filename):
 if __name__ == "__main__":
         remove_spaces = re.compile('\S+')
         
-        #if len(sys.argv) != 2:
-        #        quit("Usage progam_name data_file ")
+        #if len(sys.argv) != 3:
+        #        quit("Usage Interpreter progam_name data_file ")
         
         #fname = sys.argv[1]
         #data = read_file(fname)
-        data = read_file("test04.txt")
-        
-        #data = "ABCD1234 ABC THE CAT ABC ABC ,,12;"
-        #data = "program int X; begin X = 25; write X; end"
-        #data = "program int X,Y,Z; begin X = 25; write X; end" # Tests parsing a id_list with more than one id
-        #data = "program int X; int Y; int Z; int A; begin X = 25; write X; end" # Tests parsing a <dec seq> with more than one <dec>
-        #data = "program int X; int Y; int Z; int A; begin X = 25; read X; end" # Tests parsing a <dec seq> with more than one <dec>
+        data = read_file("test02.txt")
         
         tokens = remove_spaces.findall(data)
         
