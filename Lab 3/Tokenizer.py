@@ -381,9 +381,21 @@ class Out:
 
 class In:
         'Input class'
+        done = None
+        input_data = []
         
         def __init__(self):
                 self.id_list = None
+                
+        def read_input(self):
+                if (In.done == None):
+                        input_data = read_file("inputdata2-01.txt")
+                        #input_data = read_file(sys.argv[2])
+                        In.input_data = remove_spaces.findall(input_data)
+                        In.done = "true"
+                        return In.input_data
+                else:
+                        return In.input_data         
                 
         def parse_in(self):
                 tokenizer = Singleton().Instance()
@@ -404,12 +416,9 @@ class In:
                 print
         
         def exec_in(self):
-                input_data = read_file("inputdata2-01.txt")
-                #input_data = read_file(sys.argv[2])
-                input_data = remove_spaces.findall(input_data)
-                self.id_list.exec_id_list_read([input_data])
-                
-        
+                input_data = self.read_input()
+                In.input_data = self.id_list.exec_id_list_read(input_data)
+                   
 
 class IF:
         'If class'
@@ -438,9 +447,9 @@ class IF:
                 if tokenizer.get_token() == "end":
                         self.if_alt = 1
                         tokenizer.skip_token() # skip 'end' token
-                        return
+        
                 
-                if tokenizer.get_token() == "else":
+                elif tokenizer.get_token() == "else":
                         self.if_alt = 2
                         tokenizer.skip_token() # skip 'else' token
                         
@@ -499,14 +508,14 @@ class IF:
         def exec_if(self):
                 if self.if_alt == 1:
                         if self.cond.exec_cond():
-                                self.stmt.seq1.exec_ss()
+                                self.stmt_seq1.exec_ss()
                                 
-                elif self.alt == 2:
+                elif self.if_alt == 2:
                         if self.cond.exec_cond():
-                                self.stmt.seq1()  
+                                self.stmt_seq1.exec_ss()  
                         
                         else:
-                                self.stmt.seq2.exec_ss()
+                                self.stmt_seq2.exec_ss()
 
                 
 class Loop:
@@ -562,6 +571,7 @@ class Loop:
         
         def exec_loop(self):
                 while self.cond.exec_cond():
+                        print self.cond.exec_cond()
                         self.stmt_seq.exec_ss()
                 
         
@@ -689,10 +699,10 @@ class Comp():
                         return self.op1.exec_op() < self.op2.exec_op() 
                 
                 elif self.comp_op == ">":
-                        return self.op1.exec_op() != self.op2.exec_op()   
+                        return self.op1.exec_op() > self.op2.exec_op()   
                 
                 elif self.comp_op == "<=":
-                        return self.op1.exec_op() != self.op2.exec_op() 
+                        return self.op1.exec_op() <= self.op2.exec_op() 
                 
                 elif self.comp_op == ">=":
                         return self.op1.exec_op() >= self.op2.exec_op()                 
@@ -792,13 +802,15 @@ class Id_list:
         
         def exec_id_list_read(self, inputdata):
                 if self.alt == 1:
-                        name = self.ident.get_Id_name()
                         inputdata.reverse()
                         num = inputdata.pop()
                         self.ident.set_Id_value(int(num[0]))
+                        inputdata.reverse()
+                        return inputdata
                                 
                 if self.alt == 2 and self.id_list != None and len(inputdata) != 0:
                         self.id_list.exec_id_list(inputdata)
+                        return inputdata
 
         
         def exec_id_list_write(self):
