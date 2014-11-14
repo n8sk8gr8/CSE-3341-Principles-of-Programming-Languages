@@ -51,8 +51,10 @@ class Program:
                 self.ss.print_ss()
                 print "end"
                 
+                
         def exec_program(self):
                 self.ss.exec_ss()
+
 
 class SS:
         'Statement sequence class'
@@ -124,8 +126,8 @@ class Stmt:
                         self.stmt_assign = Assign()
                         self.stmt_assign.parse_assign()
         
+        
         def print_stmt(self):
-                
                 if self.stmt_assign != None:
                         self.stmt_assign.print_assign()
                         
@@ -189,11 +191,7 @@ class Assign:
                 print ";"
                 
         def exec_assign(self):
-                #print self.ident.get_Id_name()
-                #print self.exp.exec_exp()
                 self.ident.set_Id_value(self.exp.exec_exp())
-                #print self.ident.get_Id_value()
-                #return self.ident.get_Id_value()
   
 class Exp:
         'Expression class'
@@ -357,6 +355,7 @@ class Out:
         def __init__(self):
                 self.id_list = None
                 
+                
         def parse_out(self):
                 tokenizer = Singleton().Instance()
                 tokenizer.skip_token() # skip 'write' token
@@ -367,6 +366,7 @@ class Out:
                 if tokenizer.get_token() != ";":
                         Error().error("Error: ';' needed at the end of a write statement")
                 tokenizer.skip_token() # skip ';' token
+             
                 
         def print_out(self):
                 sys.stdout.write(indent)                
@@ -387,10 +387,11 @@ class In:
         def __init__(self):
                 self.id_list = None
                 
+        # Reads data from the file once if more read operations are needed 
+        # Returns the array of values that have not been read yet.
         def read_input(self):
                 if (In.done == None):
-                        input_data = read_file("inputdata2-01.txt")
-                        #input_data = read_file(sys.argv[2])
+                        input_data = read_file(sys.argv[2])
                         In.input_data = remove_spaces.findall(input_data)
                         In.done = "true"
                         return In.input_data
@@ -571,7 +572,6 @@ class Loop:
         
         def exec_loop(self):
                 while self.cond.exec_cond():
-                        print self.cond.exec_cond()
                         self.stmt_seq.exec_ss()
                 
         
@@ -690,22 +690,22 @@ class Comp():
         
         def exec_comp(self):  
                 if self.comp_op == "!=":
-                        return self.op1.exec_op() != self.op2.exec_op() 
+                        return int(self.op1.exec_op()) != int(self.op2.exec_op()) 
                 
                 elif self.comp_op == "==":
-                        return self.op1.exec_op() == self.op2.exec_op() 
+                        return int(self.op1.exec_op()) == int(self.op2.exec_op()) 
                 
                 elif self.comp_op == "<":
-                        return self.op1.exec_op() < self.op2.exec_op() 
+                        return int(self.op1.exec_op()) < int(self.op2.exec_op()) 
                 
-                elif self.comp_op == ">":
-                        return self.op1.exec_op() > self.op2.exec_op()   
+                elif self.comp_op == ">":                       
+                        return int(self.op1.exec_op()) > int(self.op2.exec_op())  
                 
                 elif self.comp_op == "<=":
-                        return self.op1.exec_op() <= self.op2.exec_op() 
+                        return int(self.op1.exec_op()) <= int(self.op2.exec_op()) 
                 
                 elif self.comp_op == ">=":
-                        return self.op1.exec_op() >= self.op2.exec_op()                 
+                        return int(self.op1.exec_op()) >= int(self.op2.exec_op())                 
                                 
 
 
@@ -804,7 +804,7 @@ class Id_list:
                 if self.alt == 1:
                         inputdata.reverse()
                         num = inputdata.pop()
-                        self.ident.set_Id_value(int(num[0]))
+                        self.ident.set_Id_value(int(num))
                         inputdata.reverse()
                         return inputdata
                                 
@@ -868,16 +868,18 @@ class ID:
                 else:
                         Error().error("Error: " + str(t.get_token()) + " was not defined")
                 
-
+                
+        # Returns the value of a variable 
         def get_Id_value(self):
                 if self.name in ID.id_array:
                         return ID.id_array[ID.id_array.index(self.name)].value   
                 else:
-                        Error().error("Shouldn't make it this far")
+                        Error().error("Error: " + str(self.name) + " is not declared")
         
+        
+        # Set the value of variables
         def set_Id_value(self, value):
                 if self.name in ID.id_array:
-                        #print len(value)
                         ID.id_array[ID.id_array.index(self.name)].value = int(value)
                 else:
                         Error().error("Error: " + str(self.name) + " is not declared")                
@@ -1422,12 +1424,11 @@ def read_file(filename):
 if __name__ == "__main__":
         remove_spaces = re.compile('\S+')
         
-        #if len(sys.argv) != 3:
-        #        quit("Usage Interpreter progam_name data_file ")
+        if len(sys.argv) != 3:
+                quit("Usage Interpreter progam_name data_file ")
         
-        #fname = sys.argv[1]
-        #data = read_file(fname)
-        data = read_file("test02.txt")
+        fname = sys.argv[1]
+        data = read_file(fname)
         
         tokens = remove_spaces.findall(data)
         
@@ -1460,14 +1461,9 @@ if __name__ == "__main__":
         
         for token in range(len(tokens)):
                 tokenizer.generate_tokens(tokens[token])
-        
-        print EOF
-        
-        t = Singleton().Instance()        
-       
-        print t.all_tokens
-        
+                               
         prog = Program()
         prog.parse_program()
         prog.print_program()
         prog.exec_program()
+        
